@@ -14,7 +14,7 @@ cd ${WORKSPACE}
 
 echo 'Downloading VFB.owl... '
 wget -O /out/vfb.owl.gz ${VFBOWLGZ}
-gunzip /out/vfb.owl.gz
+yes | gunzip /out/vfb.owl.gz
 
 ls -l /out
 echo ''
