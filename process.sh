@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "** Collecting Data **"
+echo "** Collecting Data! **"
 
 echo 'START' >> ${WORKSPACE}/tick.out
 ## tail -f ${WORKSPACE}/tick.out >&1 &>&1
@@ -16,12 +16,11 @@ mkdir /tmp/vfb_fullontologies
 mkdir /tmp/vfb_slices
 mkdir /tmp/vfb_download
 
-echo 'Downloading relevant ontologies... '
+echo 'Downloading relevant ontologies.. '
 wget -N -P /tmp/vfb_download -i vfb_fullontologies.txt
 wget -N -P /tmp/vfb_slices -i vfb_slices.txt
 
-
-echo 'Exporting KB to OWL'
+echo 'Exporting KB to OWL...'
 SCRIPTS=${WORKSPACE}/VFB_neo4j/src/uk/ac/ebi/vfb/neo4j/
 ONT=/tmp/vfb_download/kb.owl
 echo ''
