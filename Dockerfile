@@ -21,7 +21,7 @@ apt-get -qq -y install git curl wget default-jdk pigz maven libpq-dev python-dev
 
 ENV PATH "/opt/VFB/:$PATH"
 
-ENV ROBOT v1.2.0-alpha-1
+ENV ROBOT v1.4.0
 
 ENV KBserver=http://192.168.0.1:7474
 

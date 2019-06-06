@@ -1,42 +1,52 @@
 #!/bin/bash
+VFB_FULL_DIR=/tmp/vfb_fullontologies
+VFB_SLICES_DIR=/tmp/vfb_slices
+VFB_DOWNLOAD_DIR=/tmp/vfb_download
+VFB_DEBUG_DIR=/tmp/vfb_debugging
+VFB_FINAL=/out
+VFB_FINAL_DEBUG=/out/vfb_debugging
+SCRIPTS=${WORKSPACE}/VFB_neo4j/src/uk/ac/ebi/vfb/neo4j/
+KB_FILE=$VFB_DOWNLOAD_DIR/kb.owl
+VFB_NEO4J_SRC=${WORKSPACE}/VFB_neo4j
+LOGS_DIR=/logs/
 
 echo "** Collecting Data! **"
 
 echo 'START' >> ${WORKSPACE}/tick.out
 ## tail -f ${WORKSPACE}/tick.out >&1 &>&1
 
-cd ${WORKSPACE}/VFB_neo4j
+echo "Updateing Neo4J VFB codebase"
+cd $VFB_NEO4J_SRC
 git pull origin master
 git checkout ${GITBRANCH}
 git pull
 
+echo "Creating temporary directories.."
 cd ${WORKSPACE}
-
-mkdir /tmp/vfb_fullontologies
-mkdir /tmp/vfb_slices
-mkdir /tmp/vfb_download
+mkdir $VFB_FULL_DIR
+mkdir $VFB_SLICES_DIR
+mkdir $VFB_DOWNLOAD_DIR
+mkdir $VFB_DEBUG_DIR
+mkdir $VFB_FINAL_DEBUG
 
 echo 'Downloading relevant ontologies.. '
-wget -N -P /tmp/vfb_download -i vfb_fullontologies.txt
-wget -N -P /tmp/vfb_slices -i vfb_slices.txt
+wget -N -P $VFB_DOWNLOAD_DIR -i vfb_fullontologies.txt
+wget -N -P $VFB_SLICES_DIR -i vfb_slices.txt
 
-echo 'Exporting KB to OWL...'
-SCRIPTS=${WORKSPACE}/VFB_neo4j/src/uk/ac/ebi/vfb/neo4j/
-ONT=/tmp/vfb_download/kb.owl
-echo ''
 echo -e "travis_fold:start:neo4j_kb_export"
 echo '** Exporting KB to OWL **'
 export BUILD_OUTPUT=${WORKSPACE}/KBValidate.out
-${WORKSPACE}/runsilent.sh "python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${ONT}"
-cp $BUILD_OUTPUT /logs/
+${WORKSPACE}/runsilent.sh "python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FILE}"
+cp $BUILD_OUTPUT $LOGS_DIR
 egrep 'Exception|Error|error|exception|warning' $BUILD_OUTPUT
 echo -e "travis_fold:end:neo4j_kb_export"
 
 echo 'Copy all OWL files to output directory..'
-cp /tmp/vfb_download/*.owl /out
+cp $VFB_DOWNLOAD_DIR/*.owl $VFB_FINAL
+cp $VFB_DOWNLOAD_DIR/*.owl $VFB_DEBUG_DIR
 
 echo 'Creating slices for external ontologies: Extracting seeds'
-cd /tmp/vfb_download
+cd $VFB_DOWNLOAD_DIR
 for i in *.owl; do
     [ -f "$i" ] || break
     seedfile=$i"_terms.txt"
@@ -49,25 +59,30 @@ for i in *.owl; do
     fi
 done
 
-cat *_terms.txt | sort | uniq > /out/seed.txt
-
+cat *_terms.txt | sort | uniq > ${VFB_FINAL}/seed.txt
 
 echo 'Creating slices for external ontologies: Extracting modules'
-cd /tmp/vfb_slices
+cd $VFB_SLICES_DIR
 for i in *.owl; do
     [ -f "$i" ] || break
     echo "Processing: "$i
     mod=$i"_module.owl"
-    ${WORKSPACE}/robot extract -i $i -T /out/seed.txt --method BOT -o $mod
-    cp $mod /out
+    ${WORKSPACE}/robot extract -i $i -T ${VFB_FINAL}/seed.txt --method BOT -o $mod
+    cp $mod $VFB_FINAL
+		cp $mod $VFB_DEBUG_DIR
 done
 
+echo 'Create debugging files for pipeline..'
+cd $VFB_DEBUG_DIR
+robot merge --inputs "*.owl" --output $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl
+robot -vv reason --reasoner ELK --input $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl --output $VFB_FINAL_DEBUG/vfb-dependencies-reasoned.owl > $VFB_FINAL_DEBUG/reason_report.txt
+
 echo 'Converting all OWL files to gzipped TTL'
-cd /out
+cd $VFB_FINAL
 for i in *.owl; do
     [ -f "$i" ] || break
     echo "Processing: "$i
-    ${WORKSPACE}/robot convert --input $i --output $i".ttl"
+    ${WORKSPACE}/robot convert --input $i remove --axioms disjoint --output $i".ttl"
 done
 
 gzip -f *.ttl
