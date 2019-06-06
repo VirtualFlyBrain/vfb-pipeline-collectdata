@@ -82,7 +82,7 @@ cd $VFB_FINAL
 for i in *.owl; do
     [ -f "$i" ] || break
     echo "Processing: "$i
-    ${WORKSPACE}/robot convert --input $i remove --axioms disjoint --output $i".ttl"
+    ${WORKSPACE}/robot remove --input $i --axioms disjoint convert --output $i".ttl"
 done
 
 gzip -f *.ttl

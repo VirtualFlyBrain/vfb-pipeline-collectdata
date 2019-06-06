@@ -1,7 +1,7 @@
 test: 
 	
 # Building docker image
-VERSION = "v0.0.5" 
+VERSION = "v0.0.6" 
 IM=matentzn/vfb-pipeline-collectdata
 PW=neo4j/neo
 OUTDIR=/data/pipeline2

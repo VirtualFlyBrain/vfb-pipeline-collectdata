@@ -7,8 +7,8 @@ ENV WORKSPACE=/opt/VFB
 ENV VOLUMEDATA=/out
 # ENV VFB_OWL_VERSION=Current
 # ENV VFBOWLGZ=https://github.com/VirtualFlyBrain/VFB_owl/blob/master/src/owl/vfb.owl.gz?raw=true
-# ENV CHUNK_SIZE=1000
-# ENV PING_SLEEP=120s
+ENV CHUNK_SIZE=1000
+ENV PING_SLEEP=120s
 ENV BUILD_OUTPUT=${WORKSPACE}/build.out
 
 RUN pip3 install wheel
