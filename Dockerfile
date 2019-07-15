@@ -5,8 +5,8 @@ VOLUME /out
 
 ENV WORKSPACE=/opt/VFB
 ENV VOLUMEDATA=/out
-ENV VFB_OWL_VERSION=Current
-ENV VFBOWLGZ=https://github.com/VirtualFlyBrain/VFB_owl/blob/master/src/owl/vfb.owl.gz?raw=true
+# ENV VFB_OWL_VERSION=Current
+# ENV VFBOWLGZ=https://github.com/VirtualFlyBrain/VFB_owl/blob/master/src/owl/vfb.owl.gz?raw=true
 ENV CHUNK_SIZE=1000
 ENV PING_SLEEP=120s
 ENV BUILD_OUTPUT=${WORKSPACE}/build.out
@@ -18,6 +18,10 @@ RUN pip3 install pandas
 
 RUN apt-get -qq update || apt-get -qq update && \
 apt-get -qq -y install git curl wget default-jdk pigz maven libpq-dev python-dev tree gawk
+
+ENV PATH "/opt/VFB/:$PATH"
+
+ENV ROBOT v1.4.0
 
 ENV KBserver=http://192.168.0.1:7474
 
@@ -33,9 +37,13 @@ RUN wget -P ${WORKSPACE} ${RUNSILENT}
 
 RUN wget -P ${WORKSPACE} https://raw.githubusercontent.com/ontodev/robot/master/bin/robot
 
-RUN wget -P ${WORKSPACE} https://github.com/ontodev/robot/releases/download/v1.0.0/robot.jar
+RUN wget -P ${WORKSPACE} https://github.com/ontodev/robot/releases/download/$ROBOT/robot.jar
 
 COPY process.sh /opt/VFB/process.sh
+
+COPY vfb*.txt /opt/VFB/
+
+COPY terms.sparql /opt/VFB/
 
 RUN chmod +x /opt/VFB/*.sh
 
