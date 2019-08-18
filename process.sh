@@ -25,11 +25,10 @@ git pull
 
 echo "Creating temporary directories.."
 cd ${WORKSPACE}
-mkdir $VFB_FULL_DIR
-mkdir $VFB_SLICES_DIR
-mkdir $VFB_DOWNLOAD_DIR
-mkdir $VFB_DEBUG_DIR
-mkdir $VFB_FINAL_DEBUG
+ls -l $VFB_FINAL
+rm -rf $VFB_FINAL/*
+rm -rf $VFB_FULL_DIR $VFB_SLICES_DIR $VFB_DOWNLOAD_DIR $VFB_DEBUG_DIR $VFB_FINAL_DEBUG
+mkdir $VFB_FULL_DIR $VFB_SLICES_DIR $VFB_DOWNLOAD_DIR $VFB_DEBUG_DIR $VFB_FINAL_DEBUG
 
 echo 'Downloading relevant ontologies.. '
 wget -N -P $VFB_DOWNLOAD_DIR -i vfb_fullontologies.txt
