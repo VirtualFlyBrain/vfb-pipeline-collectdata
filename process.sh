@@ -10,6 +10,8 @@ KB_FILE=$VFB_DOWNLOAD_DIR/kb.owl
 VFB_NEO4J_SRC=${WORKSPACE}/VFB_neo4j
 LOGS_DIR=/logs/
 
+set -e
+
 echo "** Collecting Data! **"
 
 echo 'START' >> ${WORKSPACE}/tick.out
