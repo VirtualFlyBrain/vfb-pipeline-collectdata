@@ -11,6 +11,8 @@ VFB_NEO4J_SRC=${WORKSPACE}/VFB_neo4j
 
 set -e
 
+export ROBOT_JAVA_ARGS=${ROBOT_ARGS}
+
 echo "** Collecting Data! **"
 
 echo 'START' >> ${WORKSPACE}/tick.out
@@ -69,8 +71,8 @@ done
 
 echo 'Create debugging files for pipeline..'
 cd $VFB_DEBUG_DIR
-robot merge --inputs "*.owl" --output $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl
-robot -vv reason --reasoner ELK --input $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl --output $VFB_FINAL_DEBUG/vfb-dependencies-reasoned.owl > $VFB_FINAL_DEBUG/reason_report.txt
+robot -vv merge --inputs "*.owl" --output $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl
+robot -vv reason --reasoner ELK --input $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl --output $VFB_FINAL_DEBUG/vfb-dependencies-reasoned.owl
 
 echo 'Converting all OWL files to gzipped TTL'
 cd $VFB_FINAL
