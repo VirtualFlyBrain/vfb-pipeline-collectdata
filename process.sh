@@ -37,7 +37,7 @@ wget -N -P $VFB_SLICES_DIR -i vfb_slices.txt
 echo -e "travis_fold:start:neo4j_kb_export"
 echo '** Exporting KB to OWL **'
 export BUILD_OUTPUT=${WORKSPACE}/KBValidate.out
-${WORKSPACE}/runsilent.sh "python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FILE}"
+python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FILE}
 cp $BUILD_OUTPUT $LOGS_DIR
 egrep 'Exception|Error|error|exception|warning' $BUILD_OUTPUT
 echo -e "travis_fold:end:neo4j_kb_export"
