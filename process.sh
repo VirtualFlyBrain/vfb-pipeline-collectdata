@@ -8,7 +8,6 @@ VFB_FINAL_DEBUG=/out/vfb_debugging
 SCRIPTS=${WORKSPACE}/VFB_neo4j/src/uk/ac/ebi/vfb/neo4j/
 KB_FILE=$VFB_DOWNLOAD_DIR/kb.owl
 VFB_NEO4J_SRC=${WORKSPACE}/VFB_neo4j
-LOGS_DIR=/logs/
 
 set -e
 
@@ -34,13 +33,8 @@ echo 'Downloading relevant ontologies.. '
 wget -N -P $VFB_DOWNLOAD_DIR -i vfb_fullontologies.txt
 wget -N -P $VFB_SLICES_DIR -i vfb_slices.txt
 
-echo -e "travis_fold:start:neo4j_kb_export"
 echo '** Exporting KB to OWL **'
-export BUILD_OUTPUT=${WORKSPACE}/KBValidate.out
 python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FILE}
-cp $BUILD_OUTPUT $LOGS_DIR
-egrep 'Exception|Error|error|exception|warning' $BUILD_OUTPUT
-echo -e "travis_fold:end:neo4j_kb_export"
 
 echo 'Copy all OWL files to output directory..'
 cp $VFB_DOWNLOAD_DIR/*.owl $VFB_FINAL
