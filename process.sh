@@ -1,4 +1,5 @@
 #!/bin/bash
+
 VFB_FULL_DIR=/tmp/vfb_fullontologies
 VFB_SLICES_DIR=/tmp/vfb_slices
 VFB_DOWNLOAD_DIR=/tmp/vfb_download
@@ -83,3 +84,5 @@ for i in *.owl; do
 done
 
 gzip -f *.ttl
+
+echo "process complete"

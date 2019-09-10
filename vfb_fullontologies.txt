@@ -1,4 +1,4 @@
-https://raw.githubusercontent.com/FlyBase/flybase-controlled-vocabulary/master/releases/dpo.owl
+http://purl.obolibrary.org/obo/dpo.owl
 http://purl.obolibrary.org/obo/fbbt.owl
 http://purl.obolibrary.org/obo/fbdv.owl
 http://purl.obolibrary.org/obo/fbbt/vfb/vfb_ext.owl
