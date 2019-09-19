@@ -12,6 +12,11 @@ VFB_NEO4J_SRC=${WORKSPACE}/VFB_neo4j
 
 set -e
 
+echo "process started"
+echo "VFB: vfb-pipeline-collectdata"
+echo "VFBTIME:"
+date
+
 export ROBOT_JAVA_ARGS=${ROBOT_ARGS}
 
 echo "** Collecting Data! **"
@@ -19,25 +24,34 @@ echo "** Collecting Data! **"
 echo 'START' >> ${WORKSPACE}/tick.out
 ## tail -f ${WORKSPACE}/tick.out >&1 &>&1
 
-echo "Updateing Neo4J VFB codebase"
+echo "** Updateing Neo4J VFB codebase **"
 cd $VFB_NEO4J_SRC
 git pull origin master
 git checkout ${GITBRANCH}
 git pull
 
-echo "Creating temporary directories.."
+echo "** Creating temporary directories.. **"
 cd ${WORKSPACE}
 ls -l $VFB_FINAL
 rm -rf $VFB_FINAL/*
 rm -rf $VFB_FULL_DIR $VFB_SLICES_DIR $VFB_DOWNLOAD_DIR $VFB_DEBUG_DIR $VFB_FINAL_DEBUG
 mkdir $VFB_FULL_DIR $VFB_SLICES_DIR $VFB_DOWNLOAD_DIR $VFB_DEBUG_DIR $VFB_FINAL_DEBUG
 
-echo 'Downloading relevant ontologies.. '
+echo "VFBTIME:"
+date
+
+echo '** Downloading relevant ontologies.. **'
 wget -N -P $VFB_DOWNLOAD_DIR -i vfb_fullontologies.txt
 wget -N -P $VFB_SLICES_DIR -i vfb_slices.txt
 
+echo "VFBTIME:"
+date
+
 echo '** Exporting KB to OWL **'
 python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FILE}
+
+echo "VFBTIME:"
+date
 
 echo 'Copy all OWL files to output directory..'
 cp $VFB_DOWNLOAD_DIR/*.owl $VFB_FINAL
@@ -59,6 +73,9 @@ done
 
 cat *_terms.txt | sort | uniq > ${VFB_FINAL}/seed.txt
 
+cho "VFBTIME:"
+date
+
 echo 'Creating slices for external ontologies: Extracting modules'
 cd $VFB_SLICES_DIR
 for i in *.owl; do
@@ -69,6 +86,9 @@ for i in *.owl; do
     cp $mod $VFB_FINAL
 		cp $mod $VFB_DEBUG_DIR
 done
+
+echo "VFBTIME:"
+date
 
 echo 'Create debugging files for pipeline..'
 cd $VFB_DEBUG_DIR
@@ -85,4 +105,6 @@ done
 
 gzip -f *.ttl
 
+echo "VFBTIME:"
+date
 echo "process complete"
