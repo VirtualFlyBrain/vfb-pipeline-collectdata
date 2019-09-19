@@ -73,7 +73,7 @@ done
 
 cat *_terms.txt | sort | uniq > ${VFB_FINAL}/seed.txt
 
-cho "VFBTIME:"
+echo "VFBTIME:"
 date
 
 echo 'Creating slices for external ontologies: Extracting modules'
