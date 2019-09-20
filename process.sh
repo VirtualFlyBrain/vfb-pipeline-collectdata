@@ -1,5 +1,12 @@
 #!/bin/bash
 
+set -e
+
+echo "process started"
+echo "Start: vfb-pipeline-collectdata"
+echo "VFBTIME:"
+date
+
 VFB_FULL_DIR=/tmp/vfb_fullontologies
 VFB_SLICES_DIR=/tmp/vfb_slices
 VFB_DOWNLOAD_DIR=/tmp/vfb_download
@@ -9,13 +16,6 @@ VFB_FINAL_DEBUG=/out/vfb_debugging
 SCRIPTS=${WORKSPACE}/VFB_neo4j/src/uk/ac/ebi/vfb/neo4j/
 KB_FILE=$VFB_DOWNLOAD_DIR/kb.owl
 VFB_NEO4J_SRC=${WORKSPACE}/VFB_neo4j
-
-set -e
-
-echo "process started"
-echo "VFB: vfb-pipeline-collectdata"
-echo "VFBTIME:"
-date
 
 export ROBOT_JAVA_ARGS=${ROBOT_ARGS}
 
@@ -105,6 +105,7 @@ done
 
 gzip -f *.ttl
 
+echo "End: vfb-pipeline-collectdata"
 echo "VFBTIME:"
 date
 echo "process complete"
