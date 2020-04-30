@@ -11,17 +11,14 @@ ENV CHUNK_SIZE=1000
 ENV PING_SLEEP=120s
 ENV BUILD_OUTPUT=${WORKSPACE}/build.out
 
-RUN pip3 install wheel
-RUN pip3 install requests
-RUN pip3 install psycopg2
-RUN pip3 install pandas
+RUN pip3 install wheel requests psycopg2 pandas base36
 
 RUN apt-get -qq update || apt-get -qq update && \
 apt-get -qq -y install git curl wget default-jdk pigz maven libpq-dev python-dev tree gawk
 
 ENV PATH "/opt/VFB/:$PATH"
 
-ENV ROBOT v1.4.1
+ENV ROBOT v1.6.0
 
 ENV ROBOT_ARGS -Xmx20G
 
