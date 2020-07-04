@@ -14,8 +14,11 @@ VFB_DEBUG_DIR=/tmp/vfb_debugging
 VFB_FINAL=/out
 VFB_FINAL_DEBUG=/out/vfb_debugging
 SCRIPTS=${WORKSPACE}/VFB_neo4j/src/uk/ac/ebi/vfb/neo4j/
+SPARQL_DIR=${WORKSPACE}/sparql
+SHACL_DIR=${WORKSPACE}/shacl
 KB_FILE=$VFB_DOWNLOAD_DIR/kb.owl
 VFB_NEO4J_SRC=${WORKSPACE}/VFB_neo4j
+
 
 export ROBOT_JAVA_ARGS=${ROBOT_ARGS}
 
@@ -53,6 +56,13 @@ python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FI
 echo "VFBTIME:"
 date
 
+echo '** Deleting embargoes data.. **'
+robot query -i ${KB_FILE} --update ${SPARQL_DIR}/removed_embargoed_data.ru --output ${KB_FILE}.tmp.owl
+mv ${KB_FILE}.tmp.owl ${KB_FILE}
+
+echo "VFBTIME:"
+date
+
 echo 'Copy all OWL files to output directory..'
 cp $VFB_DOWNLOAD_DIR/*.owl $VFB_FINAL
 cp $VFB_DOWNLOAD_DIR/*.owl $VFB_DEBUG_DIR
@@ -67,7 +77,7 @@ for i in *.owl; do
       grep -Eo '(http://purl.obolibrary.org/)[^[:space:]"]+' $i | sort | uniq > $seedfile
       # This is slightly hacky, but ROBOT is too slow on the KB, probably because it has to fire up the SPARQL engine
     else 
-      ${WORKSPACE}/robot query -f csv -i $i --query ${WORKSPACE}/terms.sparql $seedfile
+      ${WORKSPACE}/robot query -f csv -i $i --query ${SPARQL_DIR}/terms.sparql $seedfile
     fi
 done
 
@@ -101,6 +111,10 @@ for i in *.owl; do
     [ -f "$i" ] || break
     echo "Processing: "$i
     ${WORKSPACE}/robot remove --input $i --axioms disjoint convert --output $i".ttl"
+    if [ "$i" == "kb.owl" ]; then
+      echo "Validating KB.."
+      shaclvalidate.sh -datafile $i".ttl" -shapesfile $WORKSPACE/shacl/kb.shacl > $VFB_FINAL/validation.txt
+    fi
 done
 
 gzip -f *.ttl

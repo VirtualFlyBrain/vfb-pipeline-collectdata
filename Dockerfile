@@ -5,59 +5,55 @@ VOLUME /out
 
 ENV WORKSPACE=/opt/VFB
 ENV VOLUMEDATA=/out
-# ENV VFB_OWL_VERSION=Current
-# ENV VFBOWLGZ=https://github.com/VirtualFlyBrain/VFB_owl/blob/master/src/owl/vfb.owl.gz?raw=true
-ENV CHUNK_SIZE=1000
-ENV PING_SLEEP=120s
-ENV BUILD_OUTPUT=${WORKSPACE}/build.out
+
+# ENV CHUNK_SIZE=1000
+# ENV PING_SLEEP=120s
+# ENV BUILD_OUTPUT=${WORKSPACE}/build.out
+
+ENV PATH "/opt/VFB/:/opt/VFB/shacl/bin:$PATH"
+
+ENV KBserver=http://192.168.0.1:7474
+ENV KBuser=neo4j
+ENV KBpassword=password
+
+ENV GITBRANCH=kbold2new
 
 RUN pip3 install wheel requests psycopg2 pandas base36
 
 RUN apt-get -qq update || apt-get -qq update && \
 apt-get -qq -y install git curl wget default-jdk pigz maven libpq-dev python-dev tree gawk
 
-ENV PATH "/opt/VFB/:$PATH"
+RUN mkdir $WORKSPACE
 
+###### ROBOT ######
 ENV ROBOT v1.6.0
-
 ENV ROBOT_ARGS -Xmx20G
+ARG ROBOT_JAR=https://github.com/ontodev/robot/releases/download/$ROBOT/robot.jar
+ENV ROBOT_JAR ${ROBOT_JAR}
+RUN wget $ROBOT_JAR -O $WORKSPACE/robot.jar && \
+    wget https://raw.githubusercontent.com/ontodev/robot/$ROBOT/bin/robot -O $WORKSPACE/robot && \
+    chmod +x $WORKSPACE/robot && chmod +x $WORKSPACE/robot.jar
 
-ENV KBserver=http://192.168.0.1:7474
+###### SHACL ######
+ENV SHACL_VERSION 1.3.2
+ARG SHACL_ZIP=https://repo1.maven.org/maven2/org/topbraid/shacl/$SHACL_VERSION/shacl-$SHACL_VERSION-bin.zip
+ENV SHACL_ZIP ${SHACL_ZIP}
+RUN wget $SHACL_ZIP -O $WORKSPACE/shacl.zip && \
+    unzip $WORKSPACE/shacl.zip -d $WORKSPACE && \
+    mv $WORKSPACE/shacl-$SHACL_VERSION $WORKSPACE/shacl && \
+    rm $WORKSPACE/shacl.zip && chmod +x $WORKSPACE/shacl/bin/shaclvalidate.sh && chmod +x $WORKSPACE/shacl/bin/shaclinfer.sh
 
-ENV KBuser=neo4j
+RUN ls -l $WORKSPACE/shacl
 
-ENV KBpassword=password
-
-ENV GITBRANCH=kbold2new
-
-ENV RUNSILENT=https://raw.githubusercontent.com/VirtualFlyBrain/pipeline/master/runsilent.sh
-
-RUN wget -P ${WORKSPACE} ${RUNSILENT}
-
-RUN wget -P ${WORKSPACE} https://raw.githubusercontent.com/ontodev/robot/master/bin/robot
-
-RUN wget -P ${WORKSPACE} https://github.com/ontodev/robot/releases/download/$ROBOT/robot.jar
-
-COPY process.sh /opt/VFB/process.sh
-
-COPY vfb*.txt /opt/VFB/
-
-COPY terms.sparql /opt/VFB/
-
-RUN chmod +x /opt/VFB/*.sh
-
-RUN chmod +x /opt/VFB/robot
-
-RUN echo -e "travis_fold:start:processLoad" && \
-cd "${WORKSPACE}" && \
-echo '** Git checkout VFB_neo4j **' && \
-git clone --quiet https://github.com/VirtualFlyBrain/VFB_neo4j.git
-
-RUN cd ${WORKSPACE} && \
-echo -e "travis_fold:end:processLoad"
-
-RUN echo -e "travis_fold:start:sourcetree" && tree ${WORKSPACE} && echo -e "travis_fold:end:sourcetree"
-
+###### VFB Neo4j Python Libraries ########
 ENV PYTHONPATH=${WORKSPACE}/VFB_neo4j/src/
+RUN cd "${WORKSPACE}" && git clone --quiet https://github.com/VirtualFlyBrain/VFB_neo4j.git && tree ${WORKSPACE}
+
+###### Copy pipeline files ########
+COPY process.sh $WORKSPACE/process.sh
+RUN chmod +x $WORKSPACE/process.sh
+COPY vfb*.txt $WORKSPACE/
+COPY /sparql $WORKSPACE/sparql
+COPY /shacl $WORKSPACE/shacl
 
 CMD ["/opt/VFB/process.sh"]
