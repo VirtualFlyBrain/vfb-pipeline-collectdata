@@ -57,7 +57,16 @@ echo "VFBTIME:"
 date
 
 echo '** Deleting embargoes data.. **'
-robot query -i ${KB_FILE} --update ${SPARQL_DIR}/removed_embargoed_data.ru --output ${KB_FILE}.tmp.owl
+robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets.sparql ${VFB_FINAL}/embargoed_datasets.txt
+
+echo 'Embargoed datasets: '
+head -10 ${VFB_FINAL}/embargoed_datasets.txt
+
+robot query -i ${KB_FILE} --update ${SPARQL_DIR}/delete_embargoed_channels.ru --output ${KB_FILE}.tmp.owl
+mv ${KB_FILE}.tmp.owl ${KB_FILE}
+robot query -i ${KB_FILE} --update ${SPARQL_DIR}/delete_embargoed_images.ru --output ${KB_FILE}.tmp.owl
+mv ${KB_FILE}.tmp.owl ${KB_FILE}
+robot query -i ${KB_FILE} --update ${SPARQL_DIR}/delete_embargoed_datasets.ru --output ${KB_FILE}.tmp.owl
 mv ${KB_FILE}.tmp.owl ${KB_FILE}
 
 echo "VFBTIME:"
