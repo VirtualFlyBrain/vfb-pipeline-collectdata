@@ -9,6 +9,7 @@ PREFIX dct: <http://purl.org/dc/terms/>
 
 DELETE {
 	?image ?imgrel ?imgval .
+	?imgval  ?p1  ?o1 .
 }
 
 WHERE {
@@ -22,6 +23,10 @@ WHERE {
 
 	?image dct:source ?dataset . #in case a dataset does not have images yet this is an optional clause
 	?image ?imgrel ?imgval .
+	OPTIONAL {
+        ?imgval  ?p1  ?o1  .
+        FILTER (isBlank(?imgval)) 
+  }
 
 	FILTER(?production=false || !bound(?production)) .
 	FILTER(?nodelabel="DataSet") 
