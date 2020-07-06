@@ -70,8 +70,8 @@ echo 'Embargoed datasets: select_embargoed_datasets'
 robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_datasets.sparql ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt
 
 echo 'Embargoed data: Removing everything'
-cat ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt ${VFB_DOWNLOAD_DIR}/embargoed_images.txt ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt | sort | uniq > ${VFB_DOWNLOAD_DIR}/remove_embargoed.txt
-robot remove --input ${KB_FILE} --term-file ${VFB_DOWNLOAD_DIR}/remove_embargoed.txt --output ${KB_FILE}.tmp.owl
+cat ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt ${VFB_DOWNLOAD_DIR}/embargoed_images.txt ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt | sort | uniq > ${VFB_FINAL}/remove_embargoed.txt
+robot remove --input ${KB_FILE} --term-file ${VFB_FINAL}/remove_embargoed.txt --output ${KB_FILE}.tmp.owl
 mv ${KB_FILE}.tmp.owl ${KB_FILE}
 
 echo "VFBTIME:"
