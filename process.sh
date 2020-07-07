@@ -116,8 +116,8 @@ date
 
 echo 'Create debugging files for pipeline..'
 cd $VFB_DEBUG_DIR
-robot -vv merge --inputs "*.owl" remove --axioms "disjoint" --output $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl
-robot -vv reason --reasoner ELK --input $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl --output $VFB_FINAL_DEBUG/vfb-dependencies-reasoned.owl
+robot merge --inputs "*.owl" remove --axioms "disjoint" --output $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl
+robot reason --reasoner ELK --input $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl --output $VFB_FINAL_DEBUG/vfb-dependencies-reasoned.owl
 
 echo 'Converting all OWL files to gzipped TTL'
 cd $VFB_FINAL
