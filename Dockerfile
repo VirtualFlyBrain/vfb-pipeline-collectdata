@@ -5,6 +5,9 @@ VOLUME /out
 
 ENV WORKSPACE=/opt/VFB
 ENV VOLUMEDATA=/out
+ENV VALIDATE=true
+ENV VALIDATESHEX=true
+ENV VALIDATESHACL=true
 
 # ENV CHUNK_SIZE=1000
 # ENV PING_SLEEP=120s
@@ -45,6 +48,13 @@ RUN wget $SHACL_ZIP -O $WORKSPACE/shacl.zip && \
 
 RUN ls -l $WORKSPACE/shacl
 
+###### SHEX ######
+ENV SHEX_VERSION 1.1
+# RUN cd $WORSKPACE && git clone https://github.com/iovka/shex-java.git && \
+#    cd shex-java/shex && mvn clean package && \
+#    mvn dependency:build-classpath -Dmdep.includeScope=runtime -Dmdep.outputFile=cp.txt
+
+
 ###### VFB Neo4j Python Libraries ########
 ENV PYTHONPATH=${WORKSPACE}/VFB_neo4j/src/
 RUN cd "${WORKSPACE}" && git clone --quiet https://github.com/VirtualFlyBrain/VFB_neo4j.git && tree ${WORKSPACE}
@@ -55,5 +65,7 @@ RUN chmod +x $WORKSPACE/process.sh
 COPY vfb*.txt $WORKSPACE/
 COPY /sparql $WORKSPACE/sparql
 COPY /shacl $WORKSPACE/shacl
+COPY /shex $WORKSPACE/shex
+# COPY /test.ttl $WORKSPACE/
 
 CMD ["/opt/VFB/process.sh"]

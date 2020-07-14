@@ -125,9 +125,11 @@ for i in *.owl; do
     [ -f "$i" ] || break
     echo "Processing: "$i
     ${WORKSPACE}/robot remove --input $i --axioms disjoint convert --output $i".ttl"
-    if [ "$i" == "kb.owl" ]; then
-      echo "Validating KB.."
-      shaclvalidate.sh -datafile $i".ttl" -shapesfile $WORKSPACE/shacl/kb.shacl > $VFB_FINAL/validation.txt
+    if [ "$i" == "kb.owl" && "$VALIDATE" = true ]; then
+      if [ "$VALIDATESHACL" = true ]; then
+        echo "Validating KB with SHACL.."
+        shaclvalidate.sh -datafile $i".ttl" -shapesfile $WORKSPACE/shacl/kb.shacl > $VFB_FINAL/validation.txt
+      fi
     fi
 done
 
