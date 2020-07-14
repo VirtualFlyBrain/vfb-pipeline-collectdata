@@ -56,26 +56,30 @@ python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FI
 echo "VFBTIME:"
 date
 
-echo '** Deleting embargoes data.. **'
-robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets.sparql ${VFB_FINAL}/embargoed_datasets.txt
+if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
+  echo '** Deleting embargoes data.. **'
+  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets.sparql ${VFB_FINAL}/embargoed_datasets.txt
 
-echo 'Embargoed datasets: '
-head -10 ${VFB_FINAL}/embargoed_datasets.txt
+  echo 'Embargoed datasets: '
+  head -10 ${VFB_FINAL}/embargoed_datasets.txt
 
-echo 'Embargoed datasets: select_embargoed_channels'
-robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_channels.sparql ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt
-echo 'Embargoed datasets: select_embargoed_images'
-robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_images.sparql ${VFB_DOWNLOAD_DIR}/embargoed_images.txt
-echo 'Embargoed datasets: select_embargoed_datasets'
-robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_datasets.sparql ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt
+  echo 'Embargoed datasets: select_embargoed_channels'
+  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_channels.sparql ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt
+  echo 'Embargoed datasets: select_embargoed_images'
+  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_images.sparql ${VFB_DOWNLOAD_DIR}/embargoed_images.txt
+  echo 'Embargoed datasets: select_embargoed_datasets'
+  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_datasets.sparql ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt
 
-echo 'Embargoed data: Removing everything'
-cat ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt ${VFB_DOWNLOAD_DIR}/embargoed_images.txt ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt | sort | uniq > ${VFB_FINAL}/remove_embargoed.txt
-robot remove --input ${KB_FILE} --term-file ${VFB_FINAL}/remove_embargoed.txt --output ${KB_FILE}.tmp.owl
-mv ${KB_FILE}.tmp.owl ${KB_FILE}
+  echo 'Embargoed data: Removing everything'
+  cat ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt ${VFB_DOWNLOAD_DIR}/embargoed_images.txt ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt | sort | uniq > ${VFB_FINAL}/remove_embargoed.txt
+  robot remove --input ${KB_FILE} --term-file ${VFB_FINAL}/remove_embargoed.txt --output ${KB_FILE}.tmp.owl
+  mv ${KB_FILE}.tmp.owl ${KB_FILE}
 
-echo "VFBTIME:"
-date
+  echo "VFBTIME:"
+  date
+fi
+
+
 
 echo 'Copy all OWL files to output directory..'
 cp $VFB_DOWNLOAD_DIR/*.owl $VFB_FINAL
@@ -108,7 +112,7 @@ for i in *.owl; do
     mod=$i"_module.owl"
     ${WORKSPACE}/robot extract -i $i -T ${VFB_FINAL}/seed.txt --method BOT -o $mod
     cp $mod $VFB_FINAL
-		cp $mod $VFB_DEBUG_DIR
+    cp $mod $VFB_DEBUG_DIR
 done
 
 echo "VFBTIME:"
