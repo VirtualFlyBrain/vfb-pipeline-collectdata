@@ -51,8 +51,8 @@ echo "VFBTIME:"
 date
 
 echo '** Exporting KB to OWL **'
-curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (c) REMOVE c.label_rdfs RETURN c"}]}'
-curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (p) WHERE EXISTS(p.label) SET p.label_rdfs=[] + p.label"}]}'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (c) REMOVE c.label_rdfs RETURN c"}]}' >> ${VFB_DEBUG_DIR}/neo4j_remove_rdfs_label.txt
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (p) WHERE EXISTS(p.label) SET p.label_rdfs=[] + p.label"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
 python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FILE}
 
 echo "VFBTIME:"
@@ -60,9 +60,9 @@ date
 
 if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
   echo '** Deleting embargoed data.. **'
-  robot -vv query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets.sparql ${VFB_FINAL}/embargoed_datasets.txt
+  robot -vvv query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets.sparql ${VFB_FINAL}/embargoed_datasets.txt
 
-  echo 'Embargoed datasets: '
+  echo 'First 10 embargoed datasets: '
   head -10 ${VFB_FINAL}/embargoed_datasets.txt
 
   echo 'Embargoed datasets: select_embargoed_channels'
