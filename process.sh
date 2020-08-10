@@ -59,8 +59,8 @@ echo "VFBTIME:"
 date
 
 if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
-  echo '** Deleting embargoes data.. **'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets.sparql ${VFB_FINAL}/embargoed_datasets.txt
+  echo '** Deleting embargoed data.. **'
+  robot -vv query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets.sparql ${VFB_FINAL}/embargoed_datasets.txt
 
   echo 'Embargoed datasets: '
   head -10 ${VFB_FINAL}/embargoed_datasets.txt
