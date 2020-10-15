@@ -10,6 +10,10 @@ ENV VALIDATESHEX=true
 ENV VALIDATESHACL=true
 ENV REMOVE_EMBARGOED_DATA=true
 
+# FOR STAGING, CURRENTLY ONLY prod and dev are supported. If set to dev 
+# Datasets will only be embargoed if they are not staged.
+ENV STAGING=prod
+
 # ENV CHUNK_SIZE=1000
 # ENV PING_SLEEP=120s
 # ENV BUILD_OUTPUT=${WORKSPACE}/build.out

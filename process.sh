@@ -53,24 +53,28 @@ date
 echo '** Exporting KB to OWL **'
 curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (c) REMOVE c.label_rdfs RETURN c"}]}' >> ${VFB_DEBUG_DIR}/neo4j_remove_rdfs_label.txt
 curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (p) WHERE EXISTS(p.label) SET p.label_rdfs=[] + p.label"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (n:Entity) WHERE exists(n.block) DETACH DELETE n"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH ()-[r]-() WHERE exists(r.block) DELETE r"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
+
 python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FILE}
 
 echo "VFBTIME:"
 date
 
+
 if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
   echo '** Deleting embargoed data.. **'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets.sparql ${VFB_FINAL}/embargoed_datasets.txt
+  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets_${STAGING}.sparql ${VFB_FINAL}/embargoed_datasets.txt
 
   echo 'First 10 embargoed datasets: '
   head -10 ${VFB_FINAL}/embargoed_datasets.txt
 
   echo 'Embargoed datasets: select_embargoed_channels'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_channels.sparql ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt
+  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_channels_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt
   echo 'Embargoed datasets: select_embargoed_images'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_images.sparql ${VFB_DOWNLOAD_DIR}/embargoed_images.txt
+  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_images_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_images.txt
   echo 'Embargoed datasets: select_embargoed_datasets'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_datasets.sparql ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt
+  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_datasets_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt
 
   echo 'Embargoed data: Removing everything'
   cat ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt ${VFB_DOWNLOAD_DIR}/embargoed_images.txt ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt | sort | uniq > ${VFB_FINAL}/remove_embargoed.txt
