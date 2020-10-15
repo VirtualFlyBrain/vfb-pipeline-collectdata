@@ -24,3 +24,5 @@ WHERE {
 	FILTER(?production=false || !bound(?production)) .
 	FILTER(?nodelabel="DataSet") 
 }
+
+### EDIT: this was obsoleted in the end in favour of a ROBOT solution, see process.sh. Using SPARQL this way is too memory consuming.
