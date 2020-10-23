@@ -9,6 +9,14 @@ ENV VALIDATE=true
 ENV VALIDATESHEX=true
 ENV VALIDATESHACL=true
 ENV REMOVE_EMBARGOED_DATA=true
+ENV REMOVE_UNSAT_CAUSING_AXIOMS=true
+# These are potential causes of unsatisfiability: 
+# DisjointClasses DisjointUnion DifferentIndividuals NegativeObjectPropertyAssertion 
+# NegativeDataPropertyAssertion FunctionalObjectProperty InverseFunctionalObjectProperty 
+# ReflexiveObjectProperty IrrefexiveObjectProperty ObjectPropertyDomain ObjectPropertyRange 
+# DisjointObjectProperties FunctionalDataProperty DataPropertyDomain DataPropertyRange DisjointDataProperties"
+
+ENV UNSAT_AXIOM_TYPES="DisjointClasses DisjointUnion DifferentIndividuals NegativeObjectPropertyAssertion NegativeDataPropertyAssertion FunctionalObjectProperty InverseFunctionalObjectProperty ReflexiveObjectProperty IrrefexiveObjectProperty ObjectPropertyDomain ObjectPropertyRange DisjointObjectProperties FunctionalDataProperty DataPropertyDomain DataPropertyRange DisjointDataProperties"
 
 # FOR STAGING, CURRENTLY ONLY prod and dev are supported. If set to dev 
 # Datasets will only be embargoed if they are not staged.

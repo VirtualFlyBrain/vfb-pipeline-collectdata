@@ -129,6 +129,19 @@ cd $VFB_DEBUG_DIR
 robot merge --inputs "*.owl" remove --axioms "disjoint" --output $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl
 robot reason --reasoner ELK --input $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl --output $VFB_FINAL_DEBUG/vfb-dependencies-reasoned.owl
 
+if [ "$REMOVE_UNSAT_CAUSING_AXIOMS" = true ]; then
+  echo 'Removing all possible sources for unsatisfiable classes and inconsistency...'
+  cd $VFB_FINAL
+  for i in *.owl; do
+      [ -f "$i" ] || break
+      echo "Processing: "$i
+      ${WORKSPACE}/robot remove --input $i --axioms disjoint --preserve-structure false \
+        remove --term "http://www.w3.org/2002/07/owl#Nothing" --axioms logical --preserve-structure false \
+        remove --axioms "${UNSAT_AXIOM_TYPES}" --preserve-structure false -o "$i.tmp.owl"
+      mv "$i.tmp.owl" "$i"
+  done
+fi
+
 echo 'Converting all OWL files to gzipped TTL'
 cd $VFB_FINAL
 for i in *.owl; do
@@ -142,6 +155,7 @@ for i in *.owl; do
       fi
     fi
 done
+
 
 gzip -f *.ttl
 
