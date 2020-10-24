@@ -152,7 +152,7 @@ for i in *.owl; do
     if [ "$i" == "kb.owl" ] && [ "$VALIDATE" = true ]; then
       if [ "$VALIDATESHACL" = true ]; then
         echo "Validating KB with SHACL.."
-        shaclvalidate.sh -datafile $i".ttl" -shapesfile $WORKSPACE/shacl/kb.shacl > $VFB_FINAL/validation.txt
+        shaclvalidate.sh -datafile "$i.ttl" -shapesfile $WORKSPACE/shacl/kb.shacl > $VFB_FINAL/validation.txt
       fi
     fi
 done
