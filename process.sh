@@ -137,7 +137,7 @@ if [ "$REMOVE_UNSAT_CAUSING_AXIOMS" = true ]; then
   for i in *.owl; do
       [ -f "$i" ] || break
       echo "Processing: "$i
-      ${WORKSPACE}/robot remove --input $i remove --term "http://www.w3.org/2002/07/owl#Nothing" --axioms logical --preserve-structure false \
+      ${WORKSPACE}/robot remove --input $i --term "http://www.w3.org/2002/07/owl#Nothing" --axioms logical --preserve-structure false \
         remove --axioms "${UNSAT_AXIOM_TYPES}" --preserve-structure false -o "$i.tmp.owl"
       mv "$i.tmp.owl" "$i"
   done
