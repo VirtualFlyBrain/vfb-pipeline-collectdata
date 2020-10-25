@@ -91,12 +91,13 @@ echo 'Copy all OWL files to output directory..'
 cp $VFB_DOWNLOAD_DIR/*.owl $VFB_FINAL
 cp $VFB_DOWNLOAD_DIR/*.owl $VFB_DEBUG_DIR
 
-echo 'Creating slices for external ontologies: Extracting seeds'
+echo 'Extracting seeds for creating slices for external ontologies and merging files.'
 cd $VFB_DOWNLOAD_DIR
 for i in *.owl; do
     [ -f "$i" ] || break
     seedfile=$i"_terms.txt"
     echo "Processing: "$i
+    ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv "$i.tmp.owl" "$i"
     if [ "$i" == "kb.owl" ]; then
       grep -Eo '(http://purl.obolibrary.org/)[^[:space:]"]+' $i | sort | uniq > $seedfile
       # This is slightly hacky, but ROBOT is too slow on the KB, probably because it has to fire up the SPARQL engine
