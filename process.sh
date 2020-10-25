@@ -85,19 +85,24 @@ if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
   date
 fi
 
-
+echo 'Merging all input ontologies.'
+cd $VFB_DOWNLOAD_DIR
+for i in *.owl; do
+    [ -f "$i" ] || break
+    echo "Merging: "$i
+    ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv "$i.tmp.owl" "$i"
+done
 
 echo 'Copy all OWL files to output directory..'
 cp $VFB_DOWNLOAD_DIR/*.owl $VFB_FINAL
 cp $VFB_DOWNLOAD_DIR/*.owl $VFB_DEBUG_DIR
 
-echo 'Extracting seeds for creating slices for external ontologies and merging files.'
+echo 'Creating slices for external ontologies: Extracting seeds.'
 cd $VFB_DOWNLOAD_DIR
 for i in *.owl; do
     [ -f "$i" ] || break
     seedfile=$i"_terms.txt"
-    echo "Processing: "$i
-    ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv "$i.tmp.owl" "$i"
+    echo "Extracting seed from: "$i
     if [ "$i" == "kb.owl" ]; then
       grep -Eo '(http://purl.obolibrary.org/)[^[:space:]"]+' $i | sort | uniq > $seedfile
       # This is slightly hacky, but ROBOT is too slow on the KB, probably because it has to fire up the SPARQL engine
