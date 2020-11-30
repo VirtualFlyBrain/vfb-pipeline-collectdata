@@ -95,7 +95,7 @@ done
 for i in *.owl.gz; do
     [ -f "$i" ] || break
     echo "Merging: "$i
-    ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv "$i.tmp.owl" "$i"
+    ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv "$i.tmp.owl" "$i.owl"
 done
 
 echo 'Copy all OWL files to output directory..'
