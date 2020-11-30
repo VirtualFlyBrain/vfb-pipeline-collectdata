@@ -92,6 +92,11 @@ for i in *.owl; do
     echo "Merging: "$i
     ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv "$i.tmp.owl" "$i"
 done
+for i in *.owl.gz; do
+    [ -f "$i" ] || break
+    echo "Merging: "$i
+    ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv "$i.tmp.owl" "$i"
+done
 
 echo 'Copy all OWL files to output directory..'
 cp $VFB_DOWNLOAD_DIR/*.owl $VFB_FINAL
@@ -103,12 +108,7 @@ for i in *.owl; do
     [ -f "$i" ] || break
     seedfile=$i"_terms.txt"
     echo "Extracting seed from: "$i
-    if [ "$i" == "kb.owl" ]; then
-      grep -Eo '(http://purl.obolibrary.org/)[^[:space:]"]+' $i | sort | uniq > $seedfile
-      # This is slightly hacky, but ROBOT is too slow on the KB, probably because it has to fire up the SPARQL engine
-    else 
-      ${WORKSPACE}/robot query -f csv -i $i --query ${SPARQL_DIR}/terms.sparql $seedfile
-    fi
+    ${WORKSPACE}/robot query -f csv -i $i --query ${SPARQL_DIR}/terms.sparql $seedfile
 done
 
 cat *_terms.txt | sort | uniq > ${VFB_FINAL}/seed.txt
