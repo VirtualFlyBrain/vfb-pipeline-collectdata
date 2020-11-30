@@ -92,6 +92,11 @@ for i in *.owl; do
     echo "Merging: "$i
     ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv "$i.tmp.owl" "$i"
 done
+for i in *.owl.gz; do
+    [ -f "$i" ] || break
+    echo "Merging: "$i
+    ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv "$i.tmp.owl" "$i"
+done
 
 echo 'Copy all OWL files to output directory..'
 cp $VFB_DOWNLOAD_DIR/*.owl $VFB_FINAL
