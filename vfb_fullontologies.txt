@@ -5,3 +5,4 @@ http://purl.obolibrary.org/obo/fbbt/vfb/vfb_ext.owl
 http://purl.obolibrary.org/obo/ro.owl
 http://purl.obolibrary.org/obo/geno.owl
 http://virtualflybrain.org/data/VFB/OWL/neuprint_JRC_Hemibrain_1point1_connectomics.owl.gz
+https://raw.githubusercontent.com/VirtualFlyBrain/VFB_connectomics_import/main/FAFB_CATMAID_import.owl
