@@ -3,22 +3,30 @@ FROM python:3.6
 VOLUME /logs
 VOLUME /out
 
+# from compose args
+ARG CONF_REPO
+ARG CONF_BRANCH
+
+ENV CONF_BASE=/opt/conf_base
+ENV CONF_DIR=${CONF_BASE}/config/collectdata
+
 ENV WORKSPACE=/opt/VFB
 ENV VOLUMEDATA=/out
 ENV VALIDATE=true
 ENV VALIDATESHEX=true
-ENV VALIDATESHACL=true
+# ENV VALIDATESHACL=true
+ENV VALIDATESHACL=false
 ENV REMOVE_EMBARGOED_DATA=true
 ENV REMOVE_UNSAT_CAUSING_AXIOMS=true
-# These are potential causes of unsatisfiability: 
-# DisjointClasses DisjointUnion DifferentIndividuals NegativeObjectPropertyAssertion 
-# NegativeDataPropertyAssertion FunctionalObjectProperty InverseFunctionalObjectProperty 
-# ReflexiveObjectProperty IrrefexiveObjectProperty ObjectPropertyDomain ObjectPropertyRange 
+# These are potential causes of unsatisfiability:
+# DisjointClasses DisjointUnion DifferentIndividuals NegativeObjectPropertyAssertion
+# NegativeDataPropertyAssertion FunctionalObjectProperty InverseFunctionalObjectProperty
+# ReflexiveObjectProperty IrrefexiveObjectProperty ObjectPropertyDomain ObjectPropertyRange
 # DisjointObjectProperties FunctionalDataProperty DataPropertyDomain DataPropertyRange DisjointDataProperties"
 
 ENV UNSAT_AXIOM_TYPES="DisjointClasses DisjointUnion DifferentIndividuals DisjointObjectProperties DisjointDataProperties"
 
-# FOR STAGING, CURRENTLY ONLY prod and dev are supported. If set to dev 
+# FOR STAGING, CURRENTLY ONLY prod and dev are supported. If set to dev
 # Datasets will only be embargoed if they are not staged.
 ENV STAGING=prod
 
@@ -28,10 +36,10 @@ ENV STAGING=prod
 
 ENV PATH "/opt/VFB/:/opt/VFB/shacl/bin:$PATH"
 
-ENV KBserver=http://192.168.0.1:7474
-ENV KBuser=neo4j
-ENV KBpassword=password
-
+# ENV KBuser=neo4j
+# ENV KBserver=http://192.168.0.1:7474
+# ENV KBpassword=password
+ENV VFB_NEO4J_SRC=${WORKSPACE}/VFB_neo4j
 ENV GITBRANCH=kbold2new
 
 RUN pip3 install wheel requests psycopg2 pandas base36
@@ -39,7 +47,15 @@ RUN pip3 install wheel requests psycopg2 pandas base36
 RUN apt-get -qq update || apt-get -qq update && \
 apt-get -qq -y install git curl wget default-jdk pigz maven libpq-dev python-dev tree gawk
 
+RUN mkdir $CONF_BASE
 RUN mkdir $WORKSPACE
+
+###### REMOTE CONFIG ######
+ARG CONF_BASE_TEMP=${CONF_BASE}/temp
+RUN mkdir $CONF_BASE_TEMP
+RUN cd "${CONF_BASE_TEMP}" && git clone --quiet ${CONF_REPO} && cd $(ls -d */|head -n 1) && git checkout ${CONF_BRANCH}
+# copy inner project folder from temp to conf base
+RUN cd "${CONF_BASE_TEMP}" && cd $(ls -d */|head -n 1) && cp -R . $CONF_BASE && cd $CONF_BASE && rm -r ${CONF_BASE_TEMP} && tree ${CONF_BASE}
 
 ###### ROBOT ######
 ENV ROBOT v1.7.0
@@ -71,14 +87,11 @@ ENV SHEX_VERSION 1.1
 ###### VFB Neo4j Python Libraries ########
 ENV PYTHONPATH=${WORKSPACE}/VFB_neo4j/src/
 RUN cd "${WORKSPACE}" && git clone --quiet https://github.com/VirtualFlyBrain/VFB_neo4j.git && tree ${WORKSPACE}
+RUN cd ${VFB_NEO4J_SRC} && git pull origin master && git checkout ${GITBRANCH} && git pull
 
 ###### Copy pipeline files ########
 COPY process.sh $WORKSPACE/process.sh
 RUN chmod +x $WORKSPACE/process.sh
-COPY vfb*.txt $WORKSPACE/
-COPY /sparql $WORKSPACE/sparql
-COPY /shacl $WORKSPACE/shacl
-COPY /shex $WORKSPACE/shex
 # COPY /test.ttl $WORKSPACE/
 
 CMD ["/opt/VFB/process.sh"]

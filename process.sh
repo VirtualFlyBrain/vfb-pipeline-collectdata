@@ -14,11 +14,13 @@ VFB_DEBUG_DIR=/tmp/vfb_debugging
 VFB_FINAL=/out
 VFB_FINAL_DEBUG=/out/vfb_debugging
 SCRIPTS=${WORKSPACE}/VFB_neo4j/src/uk/ac/ebi/vfb/neo4j/
-SPARQL_DIR=${WORKSPACE}/sparql
-SHACL_DIR=${WORKSPACE}/shacl
+SPARQL_DIR=${CONF_DIR}/sparql
+SHACL_DIR=${CONF_DIR}/shacl
 KB_FILE=$VFB_DOWNLOAD_DIR/kb.owl
-VFB_NEO4J_SRC=${WORKSPACE}/VFB_neo4j
 
+## get remote configs
+echo "Sourcing remote config"
+source ${CONF_DIR}/config.env
 
 export ROBOT_JAVA_ARGS=${ROBOT_ARGS}
 
@@ -26,12 +28,6 @@ echo "** Collecting Data! **"
 
 echo 'START' >> ${WORKSPACE}/tick.out
 ## tail -f ${WORKSPACE}/tick.out >&1 &>&1
-
-echo "** Updateing Neo4J VFB codebase **"
-cd $VFB_NEO4J_SRC
-git pull origin master
-git checkout ${GITBRANCH}
-git pull
 
 echo "** Creating temporary directories.. **"
 cd ${WORKSPACE}
@@ -44,13 +40,16 @@ echo "VFBTIME:"
 date
 
 echo '** Downloading relevant ontologies.. **'
-wget -N -P $VFB_DOWNLOAD_DIR -i vfb_fullontologies.txt
-wget -N -P $VFB_SLICES_DIR -i vfb_slices.txt
+wget -N -P $VFB_DOWNLOAD_DIR -i ${CONF_DIR}/vfb_fullontologies.txt
+wget -N -P $VFB_SLICES_DIR -i ${CONF_DIR}/vfb_slices.txt
 
 echo "VFBTIME:"
 date
 
 echo '** Exporting KB to OWL **'
+echo ${KBserver}
+echo ${KBuser}
+echo ${KBpassword}
 curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (c) REMOVE c.label_rdfs RETURN c"}]}' >> ${VFB_DEBUG_DIR}/neo4j_remove_rdfs_label.txt
 curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (p) WHERE EXISTS(p.label) SET p.label_rdfs=[] + p.label"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
 curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (n:Entity) WHERE exists(n.block) DETACH DELETE n"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
@@ -158,7 +157,7 @@ for i in *.owl; do
     if [ "$i" == "kb.owl" ] && [ "$VALIDATE" = true ]; then
       if [ "$VALIDATESHACL" = true ]; then
         echo "Validating KB with SHACL.."
-        shaclvalidate.sh -datafile "$i.ttl" -shapesfile $WORKSPACE/shacl/kb.shacl > $VFB_FINAL/validation.txt
+        shaclvalidate.sh -datafile "$i.ttl" -shapesfile $SHACL_DIR/kb.shacl > $VFB_FINAL/validation.txt
       fi
     fi
 done
