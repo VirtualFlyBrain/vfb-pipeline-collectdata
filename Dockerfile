@@ -40,7 +40,8 @@ ENV PATH "/opt/VFB/:/opt/VFB/shacl/bin:$PATH"
 # ENV KBserver=http://192.168.0.1:7474
 # ENV KBpassword=password
 ENV VFB_NEO4J_SRC=${WORKSPACE}/VFB_neo4j
-ENV GITBRANCH=kbold2new
+# ENV GITBRANCH=kbold2new
+ENV GITBRANCH=kbold2new_neo4j_v4
 
 RUN pip3 install wheel requests psycopg2 pandas base36
 
