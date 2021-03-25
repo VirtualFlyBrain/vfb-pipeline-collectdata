@@ -43,45 +43,51 @@ echo '** Downloading relevant ontologies.. **'
 wget -N -P $VFB_DOWNLOAD_DIR -i ${CONF_DIR}/vfb_fullontologies.txt
 wget -N -P $VFB_SLICES_DIR -i ${CONF_DIR}/vfb_slices.txt
 
-echo "VFBTIME:"
-date
+echo "Export KB to OWL: "$EXPORT_KB_TO_OWL
+if [ "$EXPORT_KB_TO_OWL" = true ]; then
+  echo "VFBTIME:"
+  date
 
-echo '** Exporting KB to OWL **'
-echo ${KBserver}
-echo ${KBuser}
-echo ${KBpassword}
-curl -i -X POST ${KBserver}/db/neo4j/tx/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (c) REMOVE c.label_rdfs RETURN c"}]}' >> ${VFB_DEBUG_DIR}/neo4j_remove_rdfs_label.txt
-curl -i -X POST ${KBserver}/db/neo4j/tx/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (p) WHERE EXISTS(p.label) SET p.label_rdfs=[] + p.label"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
-curl -i -X POST ${KBserver}/db/neo4j/tx/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (n:Entity) WHERE exists(n.block) DETACH DELETE n"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
-curl -i -X POST ${KBserver}/db/neo4j/tx/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH ()-[r]-() WHERE exists(r.block) DELETE r"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
+  echo '** Exporting KB to OWL **'
 
-python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FILE}
+  echo ${KBserver}
+  echo ${KBuser}
+  echo ${KBpassword}
+  curl -i -X POST ${KBserver}/db/neo4j/tx/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (c) REMOVE c.label_rdfs RETURN c"}]}' >> ${VFB_DEBUG_DIR}/neo4j_remove_rdfs_label.txt
+  curl -i -X POST ${KBserver}/db/neo4j/tx/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (p) WHERE EXISTS(p.label) SET p.label_rdfs=[] + p.label"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
+  curl -i -X POST ${KBserver}/db/neo4j/tx/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (n:Entity) WHERE exists(n.block) DETACH DELETE n"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
+  curl -i -X POST ${KBserver}/db/neo4j/tx/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH ()-[r]-() WHERE exists(r.block) DELETE r"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
 
-echo "VFBTIME:"
-date
-
-
-if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
-  echo '** Deleting embargoed data.. **'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets_${STAGING}.sparql ${VFB_FINAL}/embargoed_datasets.txt
-
-  echo 'First 10 embargoed datasets: '
-  head -10 ${VFB_FINAL}/embargoed_datasets.txt
-
-  echo 'Embargoed datasets: select_embargoed_channels'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_channels_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt
-  echo 'Embargoed datasets: select_embargoed_images'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_images_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_images.txt
-  echo 'Embargoed datasets: select_embargoed_datasets'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_datasets_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt
-
-  echo 'Embargoed data: Removing everything'
-  cat ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt ${VFB_DOWNLOAD_DIR}/embargoed_images.txt ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt | sort | uniq > ${VFB_FINAL}/remove_embargoed.txt
-  robot remove --input ${KB_FILE} --term-file ${VFB_FINAL}/remove_embargoed.txt --output ${KB_FILE}.tmp.owl
-  mv ${KB_FILE}.tmp.owl ${KB_FILE}
+  python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FILE}
 
   echo "VFBTIME:"
   date
+
+
+  if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
+    echo '** Deleting embargoed data.. **'
+    robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets_${STAGING}.sparql ${VFB_FINAL}/embargoed_datasets.txt
+
+    echo 'First 10 embargoed datasets: '
+    head -10 ${VFB_FINAL}/embargoed_datasets.txt
+
+    echo 'Embargoed datasets: select_embargoed_channels'
+    robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_channels_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt
+    echo 'Embargoed datasets: select_embargoed_images'
+    robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_images_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_images.txt
+    echo 'Embargoed datasets: select_embargoed_datasets'
+    robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_datasets_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt
+
+    echo 'Embargoed data: Removing everything'
+    cat ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt ${VFB_DOWNLOAD_DIR}/embargoed_images.txt ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt | sort | uniq > ${VFB_FINAL}/remove_embargoed.txt
+    robot remove --input ${KB_FILE} --term-file ${VFB_FINAL}/remove_embargoed.txt --output ${KB_FILE}.tmp.owl
+    mv ${KB_FILE}.tmp.owl ${KB_FILE}
+
+    echo "VFBTIME:"
+    date
+  fi
+
+## end if [ "$EXPORT_KB_TO_OWL" = true ]
 fi
 
 echo 'Merging all input ontologies.'
@@ -132,7 +138,9 @@ date
 echo 'Create debugging files for pipeline..'
 cd $VFB_DEBUG_DIR
 robot merge --inputs "*.owl" remove --axioms "disjoint" --output $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl
-robot merge -i kb.owl -i fbbt.owl --output $VFB_FINAL_DEBUG/vfb-kb_fbbt.owl
+if [ "$EXPORT_KB_TO_OWL" = true ]; then
+  robot merge -i kb.owl -i fbbt.owl --output $VFB_FINAL_DEBUG/vfb-kb_fbbt.owl
+fi
 robot reason --reasoner ELK --input $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl --output $VFB_FINAL_DEBUG/vfb-dependencies-reasoned.owl
 
 
