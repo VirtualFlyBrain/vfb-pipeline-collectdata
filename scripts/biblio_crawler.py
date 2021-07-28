@@ -3,7 +3,7 @@ import csv
 import requests
 from abc import ABC, abstractmethod
 from xml.etree import ElementTree
-from rdflib import Graph, URIRef, RDF, Literal, SKOS
+from rdflib import Graph, URIRef, RDF, RDFS, Literal, SKOS, DC
 from functools import lru_cache
 
 DC_TERMS = "http://purl.org/dc/terms/"
@@ -71,6 +71,8 @@ class EuroPMCLookup(LookupService):
                 reference_ontology += graph.triples((biblio_indv, None, None))
                 reference_ontology.add((biblio_indv, RDF.type, URIRef(DC_TERMS + "BibliographicResource")))
                 reference_ontology.add((biblio_indv, SKOS.exactMatch, Literal(str(query))))
+                for title in graph.objects(biblio_indv, URIRef(DC + "title")):
+                    reference_ontology.add((biblio_indv, RDFS.label, title))
         else:
             print("WARN - Bibliographic data couldn't be found for: " + query)
         return reference_ontology, biblio_id
@@ -87,6 +89,7 @@ def lookup_references(xrefs_csv):
     biblio_graph.namespace_manager.bind('dcterms', DC_TERMS, override=False)
     biblio_graph.namespace_manager.bind('eupmc', EUPMC, override=False)
     biblio_graph.namespace_manager.bind('skos', SKOS.uri, override=False)
+    add_europmc_namespaces(biblio_graph)
 
     count = 0
     with open(xrefs_csv) as csv_file:
@@ -103,6 +106,13 @@ def lookup_references(xrefs_csv):
 
     print("Resolved {} references.".format(count))
     return biblio_graph
+
+
+def add_europmc_namespaces(biblio_graph):
+    namespaces = ["AGR", "CBA", "CTX", "ETH", "HIR", "MED", "NBK", "PAT", "PMC", "PPR"]
+    for namespace in namespaces:
+        biblio_graph.namespace_manager.bind(namespace.lower(),
+                                            "http://europepmc.org/abstract/{}/".format(namespace), override=False)
 
 
 def save_ontology(biblio_graph, target_ontology):
