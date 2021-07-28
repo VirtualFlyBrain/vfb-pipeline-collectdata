@@ -43,7 +43,7 @@ ENV VFB_NEO4J_SRC=${WORKSPACE}/VFB_neo4j
 # ENV GITBRANCH=kbold2new
 ENV GITBRANCH=kbold2new_neo4j_v4
 
-RUN pip3 install wheel requests psycopg2 pandas base36
+RUN pip3 install wheel requests psycopg2 pandas base36 rdflib
 
 RUN apt-get -qq update || apt-get -qq update && \
 apt-get -qq -y install git curl wget default-jdk pigz maven libpq-dev python-dev tree gawk
@@ -94,5 +94,7 @@ RUN cd ${VFB_NEO4J_SRC} && git pull origin master && git checkout ${GITBRANCH} &
 COPY process.sh $WORKSPACE/process.sh
 RUN chmod +x $WORKSPACE/process.sh
 # COPY /test.ttl $WORKSPACE/
+
+COPY /scripts $WORKSPACE/scripts
 
 CMD ["/opt/VFB/process.sh"]

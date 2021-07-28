@@ -17,6 +17,7 @@ SCRIPTS=${WORKSPACE}/VFB_neo4j/src/uk/ac/ebi/vfb/neo4j/
 SPARQL_DIR=${CONF_DIR}/sparql
 SHACL_DIR=${CONF_DIR}/shacl
 KB_FILE=$VFB_DOWNLOAD_DIR/kb.owl
+SCRIPTS_DIR=${WORKSPACE}/scripts
 
 ## get remote configs
 echo "Sourcing remote config"
@@ -153,6 +154,20 @@ if [ "$REMOVE_UNSAT_CAUSING_AXIOMS" = true ]; then
       ${WORKSPACE}/robot remove --input $i --term "http://www.w3.org/2002/07/owl#Nothing" --axioms logical --preserve-structure false \
         remove --axioms "${UNSAT_AXIOM_TYPES}" --preserve-structure false -o "$i.tmp.owl"
       mv "$i.tmp.owl" "$i"
+  done
+fi
+
+echo "Crawl bibliographic data: "$COLLECT_BIBLIO_DATA
+if [ "$COLLECT_BIBLIO_DATA" = true ]; then
+  echo 'Collecting bibliographic data from lookup services...'
+  cd $VFB_FINAL
+  for i in *.owl; do
+      [ -f "$i" ] || break
+      echo "Processing: "$i
+      terms=${i/.owl/_terms.csv}
+      bib=${i/.owl/_biblio.owl}
+      ${WORKSPACE}/robot query --input $i --query ${SPARQL_DIR}/select_hasDbXref_relations.sparql $terms
+      python3 ${SCRIPTS_DIR}/biblio_crawler.py $i $terms $bib
   done
 fi
 
