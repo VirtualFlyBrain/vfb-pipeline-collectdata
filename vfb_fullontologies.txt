@@ -1,7 +1,7 @@
 http://purl.obolibrary.org/obo/dpo.owl
 http://purl.obolibrary.org/obo/fbbt.owl
 http://purl.obolibrary.org/obo/fbdv.owl
-http://purl.obolibrary.org/obo/fbbt/vfb/vfb_ext.owl
+http://virtualflybrain.org/data/VFB/OWL/vfbext.owl
 http://purl.obolibrary.org/obo/ro.owl
 http://purl.obolibrary.org/obo/geno.owl
 http://virtualflybrain.org/data/VFB/OWL/neuprint_JRC_Hemibrain_1point1_connectomics.owl.gz
