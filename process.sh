@@ -130,11 +130,11 @@ done
 echo "VFBTIME:"
 date
 
-echo 'Create debugging files for pipeline..'
-cd $VFB_DEBUG_DIR
-robot merge --inputs "*.owl" remove --axioms "disjoint" --output $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl
-robot merge -i kb.owl -i fbbt.owl --output $VFB_FINAL_DEBUG/vfb-kb_fbbt.owl
-robot reason --reasoner ELK --input $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl --output $VFB_FINAL_DEBUG/vfb-dependencies-reasoned.owl
+# echo 'Create debugging files for pipeline..'
+# cd $VFB_DEBUG_DIR
+# robot merge --inputs "*.owl" remove --axioms "disjoint" --output $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl
+# robot merge -i kb.owl -i fbbt.owl --output $VFB_FINAL_DEBUG/vfb-kb_fbbt.owl
+# robot reason --reasoner ELK --input $VFB_FINAL_DEBUG/vfb-dependencies-merged.owl --output $VFB_FINAL_DEBUG/vfb-dependencies-reasoned.owl
 
 
 if [ "$REMOVE_UNSAT_CAUSING_AXIOMS" = true ]; then
