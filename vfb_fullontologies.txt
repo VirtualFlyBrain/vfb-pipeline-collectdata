@@ -7,6 +7,3 @@ http://purl.obolibrary.org/obo/geno.owl
 http://virtualflybrain.org/data/VFB/OWL/neuprint_JRC_Hemibrain_1point1_connectomics.owl.gz
 http://virtualflybrain.org/data/VFB/OWL/FAFB_CATMAID_import.owl
 http://virtualflybrain.org/data/VFB/OWL/L1EM_CATMAID_import.owl
-http://virtualflybrain.org/data/VFB/OWL/NBLAST_fib_fab_import.owl
-http://virtualflybrain.org/data/VFB/OWL/NBLAST_fib_fib_import.owl
-http://virtualflybrain.org/data/VFB/OWL/NBLAST_flycircuit_flycircuit_import.owl
