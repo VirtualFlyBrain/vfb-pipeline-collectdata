@@ -2,3 +2,4 @@ http://purl.obolibrary.org/obo/fbbt.owl
 http://purl.obolibrary.org/obo/fbdv.owl
 http://virtualflybrain.org/data/VFB/OWL/vfbext.owl
 http://purl.obolibrary.org/obo/geno.owl
+http://purl.obolibrary.org/obo/ro.owl
