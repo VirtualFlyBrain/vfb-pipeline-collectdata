@@ -1,5 +1,4 @@
 http://purl.obolibrary.org/obo/so.owl
 http://purl.obolibrary.org/obo/go.owl
 http://purl.obolibrary.org/obo/fbbi.owl
-http://purl.obolibrary.org/obo/ro.owl
 http://purl.obolibrary.org/obo/dpo.owl
