@@ -4,4 +4,4 @@ http://virtualflybrain.org/data/VFB/OWL/vfbext.owl
 http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq.owl
 http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_genes.owl
 http://purl.obolibrary.org/obo/geno.owl
-
+http://virtualflybrain.org/data/VFB/OWL/linking.owl
