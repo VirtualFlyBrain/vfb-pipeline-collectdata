@@ -44,8 +44,15 @@ echo "VFBTIME:"
 date
 
 echo '** Downloading relevant ontologies.. **'
-wget -N -P $VFB_DOWNLOAD_DIR -i vfb_fullontologies.txt
-wget -N -P $VFB_SLICES_DIR -i vfb_slices.txt
+while read -r url; do
+    file_name=$(basename "$url")
+    curl -L -o "${VFB_DOWNLOAD_DIR}/${file_name}" -z "${VFB_DOWNLOAD_DIR}/${file_name}" "$url"
+done < vfb_fullontologies.txt
+
+while read -r url; do
+    file_name=$(basename "$url")
+    curl -L -o "${VFB_SLICES_DIR}/${file_name}" -z "${VFB_SLICES_DIR}/${file_name}" "$url"
+done < vfb_slices.txt
 
 echo "VFBTIME:"
 date
