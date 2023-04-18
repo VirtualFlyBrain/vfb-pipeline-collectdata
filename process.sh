@@ -47,7 +47,7 @@ echo '** Downloading relevant ontologies.. **'
 
 while read -r url; do
     # Get the list of files that match the pattern
-    file_list=$(curl -s "$url" | grep -o 'your-file-pattern[^"]*')
+    file_list=$(curl -s "$url")
 
     # Download each file
     for file in $file_list; do
