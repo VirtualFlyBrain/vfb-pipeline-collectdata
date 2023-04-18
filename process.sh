@@ -44,7 +44,7 @@ echo "VFBTIME:"
 date
 
 echo '** Downloading relevant ontologies.. **'
-
+echo '** in full: **'
 while read -r url; do
     # Get the list of files that match the pattern
     file_list=$(curl -s "$url")
@@ -52,17 +52,20 @@ while read -r url; do
     # Download each file
     for file in $file_list; do
         file_name=$(basename "$file")
+        echo "Downloading ${file_name} from ${url}${file}"
         curl -L -o "${VFB_DOWNLOAD_DIR}/${file_name}" "${url}${file}"
     done
 done < vfb_fullontologies.txt
 
+echo '** in slices: **'
 while read -r url; do
     # Get the list of files that match the pattern
-    file_list=$(curl -s "$url" | grep -o 'your-file-pattern[^"]*')
+    file_list=$(curl -s "$url")
 
     # Download each file
     for file in $file_list; do
         file_name=$(basename "$file")
+        echo "Downloading ${file_name} from ${url}${file}"
         curl -L -o "${VFB_SLICES_DIR}/${file_name}" "${url}${file}"
     done
 done < vfb_slices.txt
