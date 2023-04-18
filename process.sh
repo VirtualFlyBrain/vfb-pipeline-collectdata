@@ -47,7 +47,7 @@ echo '** Downloading relevant ontologies.. **'
 echo '** in full: **'
 while read -r url; do
     # Get the list of files that match the pattern
-    file_list=$(curl -s "$url")
+    file_list=$(curl -s "$url" | grep -oP 'href="[^"]*\.owl"')
 
     # Download each file
     for file in $file_list; do
@@ -60,7 +60,7 @@ done < vfb_fullontologies.txt
 echo '** in slices: **'
 while read -r url; do
     # Get the list of files that match the pattern
-    file_list=$(curl -s "$url")
+    file_list=$(curl -s "$url" | grep -oP 'href="[^"]*\.owl"')
 
     # Download each file
     for file in $file_list; do
