@@ -50,8 +50,9 @@ while read -r url_pattern; do
     if [[ "$url_pattern" == *"*"* ]]; then
         base_url="${url_pattern%/*}/"
         pattern="${url_pattern##*/}"
+        pattern="${pattern//\*/.*}"
         page=$(curl -s "$base_url")
-        file_list=$(echo "$page" | grep -o "href=\"$pattern\"" | sed 's/^href="//;s/"$//')
+        file_list=$(echo "$page" | grep -Eo "href=\"$pattern\"" | sed 's/^href="//;s/"$//')
 
         for file in $file_list; do
             file_url="${base_url}${file}"
@@ -68,8 +69,9 @@ while read -r url_pattern; do
     if [[ "$url_pattern" == *"*"* ]]; then
         base_url="${url_pattern%/*}/"
         pattern="${url_pattern##*/}"
+        pattern="${pattern//\*/.*}"
         page=$(curl -s "$base_url")
-        file_list=$(echo "$page" | grep -o "href=\"$pattern\"" | sed 's/^href="//;s/"$//')
+        file_list=$(echo "$page" | grep -Eo "href=\"$pattern\"" | sed 's/^href="//;s/"$//')
 
         for file in $file_list; do
             file_url="${base_url}${file}"
