@@ -45,31 +45,28 @@ date
 
 echo '** Downloading relevant ontologies.. **'
 echo '** in full: **'
-while read -r url; do
-    # Get the list of files that match the pattern
-    file_list=$(curl -s "$url" | grep -oP 'href="[^"]*\.owl"')
+while read -r url_pattern; do
+    base_url="${url_pattern%/*}/"
+    pattern="${url_pattern##*/}"
+    file_list=$(curl -s "$base_url" | grep -oP "href=\"$pattern\"" | sed 's/^href="//;s/"$//')
 
-    # Download each file
     for file in $file_list; do
-        file_name=$(basename "$file")
-        echo "Downloading ${file_name} from ${url}${file}"
-        curl -L -o "${VFB_DOWNLOAD_DIR}/${file_name}" "${url}${file}"
+        file_url="${base_url}${file}"
+        wget -N -P "$VFB_DOWNLOAD_DIR" "$file_url"
     done
 done < vfb_fullontologies.txt
 
 echo '** in slices: **'
-while read -r url; do
-    # Get the list of files that match the pattern
-    file_list=$(curl -s "$url" | grep -oP 'href="[^"]*\.owl"')
+while read -r url_pattern; do
+    base_url="${url_pattern%/*}/"
+    pattern="${url_pattern##*/}"
+    file_list=$(curl -s "$base_url" | grep -oP "href=\"$pattern\"" | sed 's/^href="//;s/"$//')
 
-    # Download each file
     for file in $file_list; do
-        file_name=$(basename "$file")
-        echo "Downloading ${file_name} from ${url}${file}"
-        curl -L -o "${VFB_SLICES_DIR}/${file_name}" "${url}${file}"
+        file_url="${base_url}${file}"
+        wget -N -P "$VFB_SLICES_DIR" "$file_url"
     done
 done < vfb_slices.txt
-
 
 echo "VFBTIME:"
 date
