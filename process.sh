@@ -46,26 +46,36 @@ date
 echo '** Downloading relevant ontologies.. **'
 echo '** in full: **'
 while read -r url_pattern; do
-    base_url="${url_pattern%/*}/"
-    pattern="${url_pattern##*/}"
-    file_list=$(curl -s "$base_url" | grep -oP "href=\"$pattern\"" | sed 's/^href="//;s/"$//')
+    if [[ "$url_pattern" == *"*"* ]]; then
+        base_url="${url_pattern%/*}/"
+        pattern="${url_pattern##*/}"
+        page=$(curl -s "$base_url")
+        file_list=$(echo "$page" | grep -o "href=\"$pattern\"" | sed 's/^href="//;s/"$//')
 
-    for file in $file_list; do
-        file_url="${base_url}${file}"
-        wget -N -P "$VFB_DOWNLOAD_DIR" "$file_url"
-    done
+        for file in $file_list; do
+            file_url="${base_url}${file}"
+            wget -N -P "$VFB_DOWNLOAD_DIR" "$file_url"
+        done
+    else
+        wget -N -P "$VFB_DOWNLOAD_DIR" "$url_pattern"
+    fi
 done < vfb_fullontologies.txt
 
 echo '** in slices: **'
 while read -r url_pattern; do
-    base_url="${url_pattern%/*}/"
-    pattern="${url_pattern##*/}"
-    file_list=$(curl -s "$base_url" | grep -oP "href=\"$pattern\"" | sed 's/^href="//;s/"$//')
+    if [[ "$url_pattern" == *"*"* ]]; then
+        base_url="${url_pattern%/*}/"
+        pattern="${url_pattern##*/}"
+        page=$(curl -s "$base_url")
+        file_list=$(echo "$page" | grep -o "href=\"$pattern\"" | sed 's/^href="//;s/"$//')
 
-    for file in $file_list; do
-        file_url="${base_url}${file}"
-        wget -N -P "$VFB_SLICES_DIR" "$file_url"
-    done
+        for file in $file_list; do
+            file_url="${base_url}${file}"
+            wget -N -P "$VFB_SLICES_DIR" "$file_url"
+        done
+    else
+        wget -N -P "$VFB_SLICES_DIR" "$url_pattern"
+    fi
 done < vfb_slices.txt
 
 echo "VFBTIME:"
