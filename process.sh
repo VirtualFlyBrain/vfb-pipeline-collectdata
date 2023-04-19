@@ -46,6 +46,7 @@ date
 echo '** Downloading relevant ontologies.. **'
 echo '** in full: **'
 while read -r url_pattern; do
+    echo $url_pattern
     if [[ "$url_pattern" == *"*"* ]]; then
         base_url="${url_pattern%/*}/"
         pattern="${url_pattern##*/}"
@@ -63,6 +64,7 @@ done < vfb_fullontologies.txt
 
 echo '** in slices: **'
 while read -r url_pattern; do
+    echo $url_pattern
     if [[ "$url_pattern" == *"*"* ]]; then
         base_url="${url_pattern%/*}/"
         pattern="${url_pattern##*/}"
