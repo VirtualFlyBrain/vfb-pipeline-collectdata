@@ -9,6 +9,7 @@ date
 
 VFB_FULL_DIR=/tmp/vfb_fullontologies
 VFB_SLICES_DIR=/tmp/vfb_slices
+VFB_MAN_SEED_DIR=/tmp/vfb_seed
 VFB_DOWNLOAD_DIR=/tmp/vfb_download
 VFB_DEBUG_DIR=/tmp/vfb_debugging
 VFB_FINAL=/out
@@ -37,8 +38,8 @@ echo "** Creating temporary directories.. **"
 cd ${WORKSPACE}
 ls -l $VFB_FINAL
 rm -rf $VFB_FINAL/*
-rm -rf $VFB_FULL_DIR $VFB_SLICES_DIR $VFB_DOWNLOAD_DIR $VFB_DEBUG_DIR $VFB_FINAL_DEBUG
-mkdir $VFB_FULL_DIR $VFB_SLICES_DIR $VFB_DOWNLOAD_DIR $VFB_DEBUG_DIR $VFB_FINAL_DEBUG
+rm -rf $VFB_FULL_DIR $VFB_SLICES_DIR $VFB_DOWNLOAD_DIR $VFB_DEBUG_DIR $VFB_FINAL_DEBUG $VFB_MAN_SEED_DIR
+mkdir $VFB_FULL_DIR $VFB_SLICES_DIR $VFB_DOWNLOAD_DIR $VFB_DEBUG_DIR $VFB_FINAL_DEBUG $VFB_MAN_SEED_DIR
 
 echo "VFBTIME:"
 date
@@ -142,6 +143,7 @@ cd $VFB_DOWNLOAD_DIR
 for i in *.owl; do
     [ -f "$i" ] || break
     seedfile=$i"_terms.txt"
+    [ ! -f "$seedfile" ] || break
     echo "Extracting seed from: "$i
     ${WORKSPACE}/robot query -f csv -i $i --query ${SPARQL_DIR}/terms.sparql $seedfile
 done
