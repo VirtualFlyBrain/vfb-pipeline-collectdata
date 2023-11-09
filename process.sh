@@ -142,7 +142,8 @@ cd $VFB_DOWNLOAD_DIR
 for i in *.owl; do
     [ -f "$i" ] || break
     seedfile=$i"_terms.txt"
-    echo "Extracting seed from: "$i
+    echo "Extracting seed from: "$i" to "$seedfile
+    [ ! -f "$seedfile" ] || break
     ${WORKSPACE}/robot query -f csv -i $i --query ${SPARQL_DIR}/terms.sparql $seedfile
 done
 
