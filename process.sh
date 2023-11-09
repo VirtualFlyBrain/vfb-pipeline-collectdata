@@ -177,11 +177,14 @@ if [ "$REMOVE_UNSAT_CAUSING_AXIOMS" = true ]; then
   echo 'Removing all possible sources for unsatisfiable classes and inconsistency...'
   cd $VFB_FINAL
   for i in *.owl; do
-      [ -f "$i" ] || break
-      echo "Processing: "$i
+    [ -f "$i" ] || break
+    echo "Processing: $i"
+    for axiom_type in $UNSAT_AXIOM_TYPES; do
+      echo "Removing $axiom_type axioms from $i"
       ${WORKSPACE}/robot remove --input $i --term "http://www.w3.org/2002/07/owl#Nothing" --axioms logical --preserve-structure false \
-        remove --axioms "${UNSAT_AXIOM_TYPES}" --preserve-structure false -o "$i.tmp.owl"
+        remove --axioms $axiom_type --preserve-structure false -o "$i.tmp.owl"
       mv "$i.tmp.owl" "$i"
+    done
   done
 fi
 
