@@ -184,7 +184,7 @@ if [ "$REMOVE_UNSAT_CAUSING_AXIOMS" = true ]; then
         echo "Skipping $i"
         continue 2
       fi
-    done < vfb_skip_axiom_checks.txt
+    done < ${WORKSPACE}/vfb_skip_axiom_checks.txt
     for axiom_type in $UNSAT_AXIOM_TYPES; do
       echo "Removing $axiom_type axioms from $i"
       ${WORKSPACE}/robot remove --input $i --term "http://www.w3.org/2002/07/owl#Nothing" --axioms logical --preserve-structure false \
