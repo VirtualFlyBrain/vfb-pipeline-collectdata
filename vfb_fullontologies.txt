@@ -6,4 +6,4 @@ http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_genes.owl
 http://virtualflybrain.org/data/VFB/OWL/VFB_NT.owl
 http://purl.obolibrary.org/obo/geno.owl
 http://virtualflybrain.org/data/VFB/OWL/merged.owl
-https://raw.githubusercontent.com/VirtualFlyBrain/vfb-scRNAseq-ontology/main/src/ontology/reports/VFB_scRNAseq.owl.gz_terms.txt
+https://raw.githubusercontent.com/VirtualFlyBrain/vfb-scRNAseq-ontology/main/src/ontology/reports/VFB_scRNAseq.owl.gz.owl_terms.txt
