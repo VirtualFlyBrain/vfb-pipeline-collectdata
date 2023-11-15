@@ -199,7 +199,7 @@ cd $VFB_FINAL
 for i in *.owl; do
     [ -f "$i" ] || break
     echo "Processing: "$i
-    ${WORKSPACE}/robot convert --input $i -f ttl --output $i".ttl"
+    ${WORKSPACE}/robot convert --check false --input $i -f ttl --output $i".ttl"
     if [ "$i" == "kb.owl" ] && [ "$VALIDATE" = true ]; then
       if [ "$VALIDATESHACL" = true ]; then
         echo "Validating KB with SHACL.."
