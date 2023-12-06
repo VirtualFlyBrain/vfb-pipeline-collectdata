@@ -5,4 +5,11 @@ http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_genes.owl
 http://virtualflybrain.org/data/VFB/OWL/VFB_NT.owl
 http://purl.obolibrary.org/obo/geno.owl
 http://virtualflybrain.org/data/VFB/OWL/merged.owl
-
+http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_FBlc0003846.owl.gz
+http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_FBlc0004307.owl.gz
+http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_FBlc0004785.owl.gz
+http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_FBlc0005362.owl.gz
+http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_FBlc0005420.owl.gz
+http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_FBlc0005515.owl.gz
+http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_FBlc0005603.owl.gz
+http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_FBlc0005659.owl.gz
