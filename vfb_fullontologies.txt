@@ -6,5 +6,5 @@ http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_genes.owl
 http://virtualflybrain.org/data/VFB/OWL/VFB_NT.owl
 http://purl.obolibrary.org/obo/geno.owl
 http://virtualflybrain.org/data/VFB/OWL/merged.owl
-http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_*
-http://virtualflybrain.org/data/VFB/OWL/VFB_EPseq_*
+http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_FBlc*
+http://virtualflybrain.org/data/VFB/OWL/VFB_EPseq_PR*
