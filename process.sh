@@ -92,6 +92,7 @@ curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword
 curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH ()-[r]-() WHERE exists(r.block) DELETE r"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
 
 python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FILE}
+robot merge -i kb_part_0.owl -i kb_part_1.owl -i kb_part_2.owl -i kb_part_3.owl -i kb_rels.owl -o ${KB_FILE}
 
 echo "VFBTIME:"
 date
