@@ -32,7 +32,7 @@ ENV KBserver=http://192.168.0.1:7474
 ENV KBuser=neo4j
 ENV KBpassword=password
 
-ENV GITBRANCH=ontology_chunks
+ENV GITBRANCH=streamed_neo4j2owl
 
 RUN pip3 install wheel requests psycopg2 pandas base36
 
