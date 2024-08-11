@@ -32,6 +32,7 @@ cd $VFB_NEO4J_SRC
 git pull origin master
 git checkout ${GITBRANCH}
 git pull
+pip install -R requirements.txt
 
 echo "** Creating temporary directories.. **"
 cd ${WORKSPACE}
