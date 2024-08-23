@@ -109,12 +109,13 @@ if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
   head -10 ${VFB_FINAL}/embargoed_datasets.txt
 
   echo 'Embargoed datasets: select_embargoed_channels'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_channels_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt
+  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_channels_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt &
   echo 'Embargoed datasets: select_embargoed_images'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_images_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_images.txt
+  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_images_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_images.txt &
   echo 'Embargoed datasets: select_embargoed_datasets'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_datasets_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt
-
+  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_datasets_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt &
+  wait
+  
   echo 'Embargoed data: Removing everything'
   cat ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt ${VFB_DOWNLOAD_DIR}/embargoed_images.txt ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt | sort | uniq > ${VFB_FINAL}/remove_embargoed.txt
   robot remove --input ${KB_FILE} --term-file ${VFB_FINAL}/remove_embargoed.txt --output ${KB_FILE}.tmp.owl
@@ -139,8 +140,8 @@ done
 wait
 
 echo 'Copy all OWL files to output directory..'
-cp $VFB_DOWNLOAD_DIR/*.owl $VFB_FINAL
-cp $VFB_DOWNLOAD_DIR/*.owl $VFB_DEBUG_DIR
+cp $VFB_DOWNLOAD_DIR/*.owl $VFB_FINAL &
+cp $VFB_DOWNLOAD_DIR/*.owl $VFB_DEBUG_DIR &
 
 echo 'Creating slices for external ontologies: Extracting seeds.'
 cd $VFB_DOWNLOAD_DIR
