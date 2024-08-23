@@ -64,7 +64,7 @@ cat vfb_fullontologies.txt | xargs -n 1 -P 4 -I {} sh -c '
     wget -N -P "$VFB_DOWNLOAD_DIR" "$url_pattern" &
   fi
 '
-wait
+
 
 echo '** in slices: **'
 cat vfb_slices.txt | xargs -n 1 -P 4 -I {} sh -c '
@@ -84,7 +84,7 @@ cat vfb_slices.txt | xargs -n 1 -P 4 -I {} sh -c '
     wget -N -P "$VFB_SLICES_DIR" "$url_pattern" &
   fi
 '
-wait
+
 
 echo "VFBTIME:"
 date
@@ -136,6 +136,8 @@ if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
   echo "VFBTIME:"
   date
 fi
+
+wait
 
 echo 'Merging all input ontologies.'
 cd $VFB_DOWNLOAD_DIR
