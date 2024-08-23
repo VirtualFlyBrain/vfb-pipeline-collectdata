@@ -201,19 +201,34 @@ if [ "$REMOVE_UNSAT_CAUSING_AXIOMS" = true ]; then
   wait
 fi
 
+# Function to handle conversion and validation
+process_owl_file() {
+    local owl_file="$1"
+    local ttl_file="${owl_file%.owl}.ttl"
+
+    echo "Processing: $owl_file"
+    ${WORKSPACE}/robot convert --check false --input "$owl_file" -f ttl --output "$ttl_file"
+
+    # Perform validation if conditions are met
+    if [ "$owl_file" == "kb.owl" ] && [ "$VALIDATE" = true ] && [ "$VALIDATESHACL" = true ]; then
+        echo "Validating KB with SHACL for $ttl_file.."
+        shaclvalidate.sh -datafile "$ttl_file" -shapesfile $WORKSPACE/shacl/kb.shacl > "$VFB_FINAL/validation_$owl_file.txt"
+    fi
+
+    # Gzip the TTL file after validation
+    gzip -f "$ttl_file"
+}
+
 echo 'Converting all OWL files to gzipped TTL'
 cd $VFB_FINAL
-for i in *.owl; do
-    [ -f "$i" ] || break
-    echo "Processing: $i"
-    ${WORKSPACE}/robot convert --check false --input $i -f ttl --output $i".ttl" &
-    if [ "$i" == "kb.owl" ] && [ "$VALIDATE" = true ]; then
-      if [ "$VALIDATESHACL" = true ]; then
-        echo "Validating KB with SHACL.."
-        shaclvalidate.sh -datafile "$i.ttl" -shapesfile $WORKSPACE/shacl/kb.shacl > $VFB_FINAL/validation.txt &
-      fi
-    fi
+# Loop through each OWL file and process it in parallel
+for owl_file in *.owl; do
+    [ -f "$owl_file" ] || continue
+    # Run the process in a subshell and put it in the background
+    (process_owl_file "$owl_file") &
 done
+
+# Wait for all background processes to complete
 wait
 
 gzip -f *.ttl
