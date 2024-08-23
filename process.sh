@@ -121,27 +121,27 @@ rm -fv $VFB_DOWNLOAD_DIR/kb_*.owl
 echo "VFBTIME:"
 date
 
-if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
-  echo '** Deleting embargoed data.. **'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets_${STAGING}.sparql ${VFB_FINAL}/embargoed_datasets.txt
+# if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
+#   echo '** Deleting embargoed data.. **'
+#   robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets_${STAGING}.sparql ${VFB_FINAL}/embargoed_datasets.txt
 
-  echo 'First 10 embargoed datasets: '
-  head -10 ${VFB_FINAL}/embargoed_datasets.txt
+#   echo 'First 10 embargoed datasets: '
+#   head -10 ${VFB_FINAL}/embargoed_datasets.txt
 
-  echo 'Embargoed datasets: select_embargoed_channels'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_channels_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt &
-  echo 'Embargoed datasets: select_embargoed_images'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_images_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_images.txt &
-  echo 'Embargoed datasets: select_embargoed_datasets'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_datasets_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt &
-  wait
+#   echo 'Embargoed datasets: select_embargoed_channels'
+#   robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_channels_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt &
+#   echo 'Embargoed datasets: select_embargoed_images'
+#   robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_images_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_images.txt &
+#   echo 'Embargoed datasets: select_embargoed_datasets'
+#   robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_datasets_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt &
+#   wait
   
-  echo 'Embargoed data: Removing everything'
-  cat ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt ${VFB_DOWNLOAD_DIR}/embargoed_images.txt ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt | sort | uniq > ${VFB_FINAL}/remove_embargoed.txt
-  robot remove --input ${KB_FILE} --term-file ${VFB_FINAL}/remove_embargoed.txt --output ${KB_FILE}.tmp.owl && mv ${KB_FILE}.tmp.owl ${KB_FILE} &
-  echo "VFBTIME:"
-  date
-fi
+#   echo 'Embargoed data: Removing everything'
+#   cat ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt ${VFB_DOWNLOAD_DIR}/embargoed_images.txt ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt | sort | uniq > ${VFB_FINAL}/remove_embargoed.txt
+#   robot remove --input ${KB_FILE} --term-file ${VFB_FINAL}/remove_embargoed.txt --output ${KB_FILE}.tmp.owl && mv ${KB_FILE}.tmp.owl ${KB_FILE} &
+#   echo "VFBTIME:"
+#   date
+# fi
 
 # Wait for all background jobs to complete
 wait
