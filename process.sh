@@ -89,6 +89,19 @@ wait
 echo "VFBTIME:"
 date
 
+echo '** Removing embargoed data directly from KB before export **'
+echo 'Non Production Datasets:'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (n:DataSet)<-[:has_source]-(i:Individual)<-[:depicts]-(ic:Individual) WHERE not n.production=[true] DETACH DELETE ic DETACH DELETE i DETACH DELETE n"}]}'
+echo 'Blocked Anatomical Individuals:'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (i:Individual)<-[:depicts]-(ic:Individual)-[ir:in_register_with]->(tc:Template) WHERE exists(i.block) DETACH DELETE ic DETACH DELETE i"}]}'
+echo 'Blocked Images:'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (i:Individual)<-[:depicts]-(ic:Individual)-[ir:in_register_with]->(tc:Template) WHERE exists(ir.block) DELETE ir"}]}'
+echo 'Clean Channels/Individuals with no Image:'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (i:Individual)<-[:depicts]-(ic:Individual) WHERE not (ic)-[:in_register_with]->(:Template) and i.short_form starts with 'VFB_' DETACH DELETE ic DETACH DELETE i"}]}'
+
+echo "VFBTIME:"
+date
+
 echo '** Exporting KB to OWL **'
 curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (c) REMOVE c.label_rdfs RETURN c"}]}' >> ${VFB_DEBUG_DIR}/neo4j_remove_rdfs_label.txt
 curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (p) WHERE EXISTS(p.label) SET p.label_rdfs=[] + p.label"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
