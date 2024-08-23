@@ -155,12 +155,12 @@ cd $VFB_DOWNLOAD_DIR
 for i in *.owl; do
     [ -f "$i" ] || break
     echo "Merging: $i"
-    ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv "$i.tmp.owl" "$i" &
+    ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv -v "$i.tmp.owl" "$i" && echo "Finished: $i" &
 done
 for i in *.owl.gz; do
     [ -f "$i" ] || break
     echo "Merging: $i"
-    ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv "$i.tmp.owl" "$i.owl" &
+    ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv -v "$i.tmp.owl" "$i.owl" && echo "Finished: $i" &
 done
 wait
 
