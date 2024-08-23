@@ -175,7 +175,7 @@ for i in *.owl; do
     seedfile=$i"_terms.txt"
     echo "Extracting seed from: $i to $seedfile"
     [ ! -f "$seedfile" ] || break
-    ${WORKSPACE}/robot query -f csv -i $i --query ${SPARQL_DIR}/terms.sparql $seedfile &
+    ${WORKSPACE}/robot query -f csv -i $i --query ${SPARQL_DIR}/terms.sparql $seedfile  && echo "Finished: $i" &
 done
 wait
 
@@ -258,7 +258,7 @@ done
 # Wait for all background processes to complete
 wait
 
-gzip -f *.ttl
+gzip -f *.ttl || :
 
 echo "End: vfb-pipeline-collectdata"
 echo "VFBTIME:"
