@@ -44,47 +44,53 @@ mkdir $VFB_FULL_DIR $VFB_SLICES_DIR $VFB_DOWNLOAD_DIR $VFB_DEBUG_DIR $VFB_FINAL_
 echo "VFBTIME:"
 date
 
-# Parallel downloading and processing using xargs
 echo '** Downloading relevant ontologies.. **'
 echo '** in full: **'
-cat vfb_fullontologies.txt | xargs -n 1 -P 4 -I {} sh -c '
-  url_pattern="{}"
-  if [[ "$url_pattern" == *"*"* ]]; then
-    base_url="${url_pattern%/*}/"
-    pattern="${url_pattern##*/}"
-    pattern="${pattern//\*/.*}"
-    page=$(curl -s "$base_url")
-    file_list=$(echo "$page" | grep -Eo "href=\"$pattern\"" | sed "s/^href=\"//;s/\"$//")
 
-    for file in $file_list; do
-      file_url="${base_url}${file}"
-      wget -N -P "$VFB_DOWNLOAD_DIR" "$file_url" &
-    done
-  else
-    wget -N -P "$VFB_DOWNLOAD_DIR" "$url_pattern" &
-  fi
-'
+# Process each URL pattern in parallel
+while read -r url_pattern; do
+    echo "Processing: $url_pattern"
+    if [[ "$url_pattern" == *"*"* ]]; then
+        base_url="${url_pattern%/*}/"
+        pattern="${url_pattern##*/}"
+        pattern="${pattern//\*/.*}"
+        page=$(curl -s "$base_url")
+        file_list=$(echo "$page" | grep -Eo "href=\"$pattern\"" | sed 's/^href="//;s/"$//')
+
+        for file in $file_list; do
+            file_url="${base_url}${file}"
+            wget -N -P "$VFB_DOWNLOAD_DIR" "$file_url" &
+        done
+    else
+        wget -N -P "$VFB_DOWNLOAD_DIR" "$url_pattern" &
+    fi
+done < vfb_fullontologies.txt
 
 
 echo '** in slices: **'
-cat vfb_slices.txt | xargs -n 1 -P 4 -I {} sh -c '
-  url_pattern="{}"
-  if [[ "$url_pattern" == *"*"* ]]; then
-    base_url="${url_pattern%/*}/"
-    pattern="${url_pattern##*/}"
-    pattern="${pattern//\*/.*}"
-    page=$(curl -s "$base_url")
-    file_list=$(echo "$page" | grep -Eo "href=\"$pattern\"" | sed "s/^href=\"//;s/\"$//")
 
-    for file in $file_list; do
-      file_url="${base_url}${file}"
-      wget -N -P "$VFB_SLICES_DIR" "$file_url" &
-    done
-  else
-    wget -N -P "$VFB_SLICES_DIR" "$url_pattern" &
-  fi
-'
+# Process each URL pattern in slices in parallel
+while read -r url_pattern; do
+    echo "Processing: $url_pattern"
+    if [[ "$url_pattern" == *"*"* ]]; then
+        base_url="${url_pattern%/*}/"
+        pattern="${url_pattern##*/}"
+        pattern="${pattern//\*/.*}"
+        page=$(curl -s "$base_url")
+        file_list=$(echo "$page" | grep -Eo "href=\"$pattern\"" | sed 's/^href="//;s/"$//')
 
+        for file in $file_list; do
+            file_url="${base_url}${file}"
+            wget -N -P "$VFB_SLICES_DIR" "$file_url" &
+        done
+    else
+        wget -N -P "$VFB_SLICES_DIR" "$url_pattern" &
+    fi
+done < vfb_slices.txt
+
+
+
+echo '** Downloads called. **'
 
 echo "VFBTIME:"
 date
@@ -137,6 +143,7 @@ if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
   date
 fi
 
+# Wait for all background jobs to complete
 wait
 
 echo 'Merging all input ontologies.'
