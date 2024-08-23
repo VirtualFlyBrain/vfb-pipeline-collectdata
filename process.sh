@@ -190,10 +190,9 @@ for i in *.owl; do
     [ -f "$i" ] || break
     echo "Processing: $i"
     mod=$i"_module.owl"
-    ${WORKSPACE}/robot extract -i $i -T ${VFB_FINAL}/seed.txt --method BOT -o $mod &
-    cp $mod $VFB_FINAL
-    cp $mod $VFB_DEBUG_DIR
+    ${WORKSPACE}/robot extract -i $i -T ${VFB_FINAL}/seed.txt --method BOT -o $mod && cp $mod $VFB_FINAL && cp $mod $VFB_DEBUG_DIR && echo "Finished: $i" &
 done
+
 wait
 
 echo "VFBTIME:"
