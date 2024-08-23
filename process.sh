@@ -208,22 +208,41 @@ date
 if [ "$REMOVE_UNSAT_CAUSING_AXIOMS" = true ]; then
   echo 'Removing all possible sources for unsatisfiable classes and inconsistency...'
   cd $VFB_FINAL
-  for i in *.owl; do
-    [ -f "$i" ] || break
-    echo "Processing: $i"
+
+  # Define the function to process each OWL file
+  process_owl_file() {
+    local owl_file="$1"
+
+    echo "Processing: $owl_file"
+
+    # Check if the file should be skipped
     while read -r url_pattern; do
-      if [ $url_pattern == $i ]; then
-        echo "Skipping $i"
-        continue 2
+      if [ "$url_pattern" == "$owl_file" ]; then
+        echo "Skipping $owl_file"
+        return
       fi
     done < ${WORKSPACE}/vfb_skip_axiom_checks.txt
+
+    # Remove axioms
     for axiom_type in $UNSAT_AXIOM_TYPES; do
-      echo "Removing $axiom_type axioms from $i"
-      ${WORKSPACE}/robot remove --input $i --term "http://www.w3.org/2002/07/owl#Nothing" --axioms logical --preserve-structure false \
-        remove --axioms $axiom_type --preserve-structure false -o "$i.tmp.owl"
-      mv "$i.tmp.owl" "$i" &
+      echo "Removing $axiom_type axioms from $owl_file"
+      ${WORKSPACE}/robot remove --input "$owl_file" --term "http://www.w3.org/2002/07/owl#Nothing" --axioms logical --preserve-structure false \
+        remove --axioms $axiom_type --preserve-structure false -o "$owl_file.tmp.owl"
+      mv "$owl_file.tmp.owl" "$owl_file"
     done
+    echo "Finished: $owl_file"
+  }
+
+  # Export the function so it can be used in subshells
+  export -f process_owl_file
+
+  # Process each OWL file in parallel
+  for i in *.owl; do
+    [ -f "$i" ] || continue
+    process_owl_file "$i" &
   done
+
+  # Wait for all background jobs to complete
   wait
 fi
 
