@@ -110,6 +110,7 @@ curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword
 
 python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FILE}
 robot merge -i $VFB_DOWNLOAD_DIR/kb_part_0.owl -i $VFB_DOWNLOAD_DIR/kb_part_1.owl -i $VFB_DOWNLOAD_DIR/kb_part_2.owl -i $VFB_DOWNLOAD_DIR/kb_part_3.owl -i $VFB_DOWNLOAD_DIR/kb_rels.owl -o ${KB_FILE}
+rm -fv $VFB_DOWNLOAD_DIR/kb_*.owl
 
 echo "VFBTIME:"
 date
