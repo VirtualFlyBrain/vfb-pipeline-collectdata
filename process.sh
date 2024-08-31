@@ -30,7 +30,7 @@ echo "** Updating Neo4J VFB codebase **"
 cd $VFB_NEO4J_SRC
 git pull origin master
 git checkout ${GITBRANCH}
-git pull
+git pull origin ${GITBRANCH}
 pip install -r requirements.txt
 
 # Create temporary directories
