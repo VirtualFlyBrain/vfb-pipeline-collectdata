@@ -165,13 +165,13 @@ echo '** Merging into KB.OWL **'
 # Initialize the command
 cmd="robot merge"
 
-# Loop over kb_rels_*.owl files and add them to the command with -i
+# Loop over kb_*.owl files and add them to the command with -i
 for file in "$VFB_DOWNLOAD_DIR"/kb_*.owl; do
     cmd="$cmd -i $file"
 done
 
 # Add the output file argument
-cmd="$cmd -o ${KB_FILE}
+cmd="$cmd -o ${KB_FILE}"
 
 # Execute the constructed command
 echo $cmd
