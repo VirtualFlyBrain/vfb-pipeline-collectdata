@@ -120,7 +120,24 @@ date
 echo '** Merging parts into KB.OWL **'
 cat ${SCRIPTS}neo4j_kb_export.py 
 python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FILE}
-robot merge -i $VFB_DOWNLOAD_DIR/kb_part_*.owl -i $VFB_DOWNLOAD_DIR/kb_rels_*.owl  -o ${KB_FILE}
+# Initialize the command
+cmd="robot merge"
+
+# Loop over kb_part_*.owl files and add them to the command with -i
+for file in "$VFB_DOWNLOAD_DIR"/kb_part_*.owl; do
+    cmd="$cmd -i $file"
+done
+
+# Loop over kb_rels_*.owl files and add them to the command with -i
+for file in "$VFB_DOWNLOAD_DIR"/kb_rels_*.owl; do
+    cmd="$cmd -i $file"
+done
+
+# Add the output file argument
+cmd="$cmd -o ${KB_FILE}"
+
+# Execute the constructed command
+eval $cmd
 rm -fv $VFB_DOWNLOAD_DIR/kb_*.owl
 
 echo "VFBTIME:"
