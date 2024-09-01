@@ -117,7 +117,7 @@ curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword
 echo "VFBTIME:"
 date
 
-echo '** Merging parts into KB.OWL **'
+echo '** Merging parts into KB_parts.OWL **'
 cat ${SCRIPTS}neo4j_kb_export.py 
 python3 ${SCRIPTS}neo4j_kb_export.py ${KBserver} ${KBuser} ${KBpassword} ${KB_FILE}
 # Initialize the command
@@ -128,20 +128,59 @@ for file in "$VFB_DOWNLOAD_DIR"/kb_part_*.owl; do
     cmd="$cmd -i $file"
 done
 
+# Add the output file argument
+cmd="$cmd -o "$VFB_DOWNLOAD_DIR"/kb_part.owl"
+
+# Execute the constructed command
+echo $cmd
+eval $cmd
+rm -fv $VFB_DOWNLOAD_DIR/kb_part_*.owl
+
+echo "VFBTIME:"
+date
+echo '** Merging rels into KB_rels.OWL **'
+
+# Initialize the command
+cmd="robot merge"
+
 # Loop over kb_rels_*.owl files and add them to the command with -i
 for file in "$VFB_DOWNLOAD_DIR"/kb_rels_*.owl; do
     cmd="$cmd -i $file"
 done
 
 # Add the output file argument
-cmd="$cmd -o ${KB_FILE}"
+cmd="$cmd -o "$VFB_DOWNLOAD_DIR"/kb_rels.owl"
 
 # Execute the constructed command
+echo $cmd
 eval $cmd
-rm -fv $VFB_DOWNLOAD_DIR/kb_*.owl
+rm -fv $VFB_DOWNLOAD_DIR/kb_rels_*.owl
+echo "VFBTIME:"
+date
 
 echo "VFBTIME:"
 date
+echo '** Merging into KB.OWL **'
+
+# Initialize the command
+cmd="robot merge"
+
+# Loop over kb_rels_*.owl files and add them to the command with -i
+for file in "$VFB_DOWNLOAD_DIR"/kb_*.owl; do
+    cmd="$cmd -i $file"
+done
+
+# Add the output file argument
+cmd="$cmd -o ${KB_FILE}
+
+# Execute the constructed command
+echo $cmd
+eval $cmd
+rm -fv $VFB_DOWNLOAD_DIR/kb_*.owl
+echo "VFBTIME:"
+date
+
+
 
 if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
   echo '** Deleting embargoed data.. **'
