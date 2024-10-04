@@ -184,7 +184,7 @@ date
 
 if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
   echo '** Deleting embargoed data.. **'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets_${STAGING}.sparql ${VFB_FINAL}/embargoed_datasets.txt
+  robot -vvv query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets_${STAGING}.sparql ${VFB_FINAL}/embargoed_datasets.txt
 
   echo 'First 10 embargoed datasets: '
   head -10 ${VFB_FINAL}/embargoed_datasets.txt
