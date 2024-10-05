@@ -95,24 +95,26 @@ echo '** Downloads called. **'
 echo "VFBTIME:"
 date
 
-# echo '** Removing embargoed data directly from KB before export **'
-# echo 'Non Production Datasets:'
-# curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (n:DataSet)<-[:has_source]-(i:Individual)<-[:depicts]-(ic:Individual) WHERE not n.production=[true] DETACH DELETE ic DETACH DELETE i DETACH DELETE n"}]}'
-# echo 'Blocked Anatomical Individuals:'
-# curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (i:Individual)<-[:depicts]-(ic:Individual)-[ir:in_register_with]->(tc:Template) WHERE exists(i.block) DETACH DELETE ic DETACH DELETE i"}]}'
-# echo 'Blocked Images:'
-# curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (i:Individual)<-[:depicts]-(ic:Individual)-[ir:in_register_with]->(tc:Template) WHERE exists(ir.block) DELETE ir"}]}'
-# echo 'Clean Channels/Individuals with no Image:'
-# curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (i:Individual)<-[:depicts]-(ic:Individual) WHERE not (ic)-[:in_register_with]->(:Template) and i.short_form starts with 'VFB_' DETACH DELETE ic DETACH DELETE i"}]}'
+echo '** Removing embargoed data directly from KB before export **'
+echo 'Non Production Datasets:'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (d:DataSet) WHERE not d.production=[True] OPTIONAL MATCH (d)<-[:has_source]-(i:Individual)OPTIONAL MATCH (i)<-[:depicts]-(ic:Individual) DETACH DELETE ic DETACH DELETE i DETACH DELETE d"}]}'
+echo 'Blocked Images:'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (:DataSet)<-[:has_source]-(i:Individual)<-[:depicts]-(ic:Individual)-[r:in_register_with]->(tc:Template) WHERE exists(r.block) DELETE r"}]}'
+echo 'Blocked Channel:'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (:DataSet)<-[:has_source]-(i:Individual)<-[:depicts]-(ic:Individual) WHERE exists(ic.block) DETACH DELETE ic"}]}'
+echo 'Blocked Anatomical Individuals:'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (:DataSet)<-[:has_source]-(i:Individual) WHERE exists(i.block) OPTIONAL MATCH (i)<-[:depicts]-(ic:Individual) DETACH DELETE ic DETACH DELETE i"}]}'
+echo 'Clean Channels/Individuals with no Image:'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (:DataSet)<-[:has_source]-(i:Individual)<-[:depicts]-(ic:Individual) WHERE NOT (ic)-[:in_register_with]->(:Template) DETACH DELETE ic DETACH DELETE i"}]}'
 
-echo "VFBTIME:"
-date
+# echo "VFBTIME:"
+# date
 
-echo '** Exporting KB to OWL **'
-curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (c) REMOVE c.label_rdfs RETURN c"}]}' >> ${VFB_DEBUG_DIR}/neo4j_remove_rdfs_label.txt
-curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (p) WHERE EXISTS(p.label) SET p.label_rdfs=[] + p.label"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
-curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (n:Entity) WHERE exists(n.block) DETACH DELETE n"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
-curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH ()-[r]-() WHERE exists(r.block) DELETE r"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
+# echo '** Exporting KB to OWL **'
+# curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (c) REMOVE c.label_rdfs RETURN c"}]}' >> ${VFB_DEBUG_DIR}/neo4j_remove_rdfs_label.txt
+# curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (p) WHERE EXISTS(p.label) SET p.label_rdfs=[] + p.label"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
+# curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (n:Entity) WHERE exists(n.block) DETACH DELETE n"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
+# curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH ()-[r]-() WHERE exists(r.block) DELETE r"}]}' >> ${VFB_DEBUG_DIR}/neo4j_change_label_to_rdfs.txt
 
 echo "VFBTIME:"
 date
@@ -182,27 +184,27 @@ date
 
 
 
-if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
-  echo '** Deleting embargoed data.. **'
-  robot -vvv query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets_${STAGING}.sparql ${VFB_FINAL}/embargoed_datasets.txt
+# if [ "$REMOVE_EMBARGOED_DATA" = true ]; then
+#   echo '** Deleting embargoed data.. **'
+#   robot -vvv query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/embargoed_datasets_${STAGING}.sparql ${VFB_FINAL}/embargoed_datasets.txt
 
-  echo 'First 10 embargoed datasets: '
-  head -10 ${VFB_FINAL}/embargoed_datasets.txt
+#   echo 'First 10 embargoed datasets: '
+#   head -10 ${VFB_FINAL}/embargoed_datasets.txt
 
-  echo 'Embargoed datasets: select_embargoed_channels'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_channels_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt &
-  echo 'Embargoed datasets: select_embargoed_images'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_images_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_images.txt &
-  echo 'Embargoed datasets: select_embargoed_datasets'
-  robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_datasets_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt &
-  wait
+#   echo 'Embargoed datasets: select_embargoed_channels'
+#   robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_channels_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt &
+#   echo 'Embargoed datasets: select_embargoed_images'
+#   robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_images_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_images.txt &
+#   echo 'Embargoed datasets: select_embargoed_datasets'
+#   robot query -f csv -i ${KB_FILE} --query ${SPARQL_DIR}/select_embargoed_datasets_${STAGING}.sparql ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt &
+#   wait
   
-  echo 'Embargoed data: Removing everything'
-  cat ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt ${VFB_DOWNLOAD_DIR}/embargoed_images.txt ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt | sort | uniq > ${VFB_FINAL}/remove_embargoed.txt
-  robot remove --input ${KB_FILE} --term-file ${VFB_FINAL}/remove_embargoed.txt --output ${KB_FILE}.tmp.owl && mv ${KB_FILE}.tmp.owl ${KB_FILE} &
-  echo "VFBTIME:"
-  date
-fi
+#   echo 'Embargoed data: Removing everything'
+#   cat ${VFB_DOWNLOAD_DIR}/embargoed_channels.txt ${VFB_DOWNLOAD_DIR}/embargoed_images.txt ${VFB_DOWNLOAD_DIR}/embargoed_datasets.txt | sort | uniq > ${VFB_FINAL}/remove_embargoed.txt
+#   robot remove --input ${KB_FILE} --term-file ${VFB_FINAL}/remove_embargoed.txt --output ${KB_FILE}.tmp.owl && mv ${KB_FILE}.tmp.owl ${KB_FILE} &
+#   echo "VFBTIME:"
+#   date
+# fi
 
 # Wait for all background jobs to complete
 wait
