@@ -9,4 +9,5 @@ http://virtualflybrain.org/data/VFB/OWL/merged.owl
 http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_FBlc*
 http://virtualflybrain.org/data/VFB/OWL/VFB_EPseq_PR*
 http://purl.obolibrary.org/obo/fbbt/EM_synonyms.owl
+http://purl.obolibrary.org/obo/fbbt/EM_neuropil_synonyms.owl
 http://virtualflybrain.org/data/VFB/OWL/vfb-neuron-functions.owl
