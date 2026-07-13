@@ -274,9 +274,10 @@ if [ "$REMOVE_UNSAT_CAUSING_AXIOMS" = true ]; then
 
     echo "Processing: $owl_file"
 
-    # Check if the file should be skipped
+    # Check if the file should be skipped (entries may be glob patterns, e.g. VFB_EPseq_PR*)
     while read -r url_pattern; do
-      if [ "$url_pattern" == "$owl_file" ]; then
+      [ -z "$url_pattern" ] && continue
+      if [[ "$owl_file" == $url_pattern ]]; then
         echo "Skipping $owl_file"
         return
       fi

@@ -1,1 +1,6 @@
-VFB_scRNAseq.owl.gz.owl
+VFB_scRNAseq_genes.owl
+VFB_NT.owl
+VFB_scRNAseq_FBlc*
+VFB_EPseq_PR*
+EM_synonyms.owl
+EM_neuropil_synonyms.owl
