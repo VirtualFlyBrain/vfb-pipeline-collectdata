@@ -41,6 +41,52 @@ rm -rf $VFB_FINAL/*
 rm -rf $VFB_FULL_DIR $VFB_SLICES_DIR $VFB_DOWNLOAD_DIR $VFB_DEBUG_DIR $VFB_FINAL_DEBUG
 mkdir $VFB_FULL_DIR $VFB_SLICES_DIR $VFB_DOWNLOAD_DIR $VFB_DEBUG_DIR $VFB_FINAL_DEBUG
 
+# Minimum acceptable size (bytes) for a downloaded ontology. Anything smaller is treated
+# as a failed/empty download. The smallest real source ontology (VFBext) is ~89KB, so 10KB
+# is a safe floor. Override by setting MIN_FILE_SIZE in the environment.
+MIN_FILE_SIZE=${MIN_FILE_SIZE:-10240}
+
+# Backgrounded ROBOT jobs don't trip 'set -e', so failures are collected here and checked
+# after each parallel stage instead of being silently ignored. Written under the persisted
+# /out debug dir so the log survives the run as an artifact.
+export ROBOT_ERROR_LOG=$VFB_FINAL_DEBUG/collectdata_robot_errors.log
+: > "$ROBOT_ERROR_LOG"
+
+# Wrapper that runs ROBOT and records a message (rather than aborting) if it fails, so that
+# a failure inside a backgrounded '&' job is not lost.
+run_robot() {
+    if ! "${WORKSPACE}/robot" "$@"; then
+        echo "ROBOT FAILED: robot $*" >> "$ROBOT_ERROR_LOG"
+        return 1
+    fi
+}
+export -f run_robot
+
+# Abort the pipeline if any run_robot call has failed. Pass a stage name for the message.
+check_robot_errors() {
+    if [ -s "$ROBOT_ERROR_LOG" ]; then
+        echo "ERROR: ROBOT command failure(s) detected during stage: ${1:-unknown}" >&2
+        cat "$ROBOT_ERROR_LOG" >&2
+        exit 1
+    fi
+}
+
+# Fail if any *.owl / *.owl.gz file in the given directory is smaller than MIN_FILE_SIZE.
+check_file_sizes() {
+    local dir="$1"
+    local undersized=0
+    local f sz
+    for f in "$dir"/*.owl "$dir"/*.owl.gz; do
+        [ -f "$f" ] || continue
+        sz=$(stat -c%s "$f" 2>/dev/null || stat -f%z "$f")
+        if [ "$sz" -lt "$MIN_FILE_SIZE" ]; then
+            echo "ERROR: $f is only $sz bytes (< ${MIN_FILE_SIZE}); likely a failed/empty download" >&2
+            undersized=1
+        fi
+    done
+    return $undersized
+}
+
 echo "VFBTIME:"
 date
 
@@ -209,19 +255,28 @@ date
 # Wait for all background jobs to complete
 wait
 
-echo 'Merging all input ontologies.'
+echo '** Checking downloaded ontology file sizes.. **'
+check_file_sizes "$VFB_DOWNLOAD_DIR" || { echo "Aborting: undersized/empty download(s) detected."; exit 1; }
+check_file_sizes "$VFB_SLICES_DIR"   || { echo "Aborting: undersized/empty download(s) detected."; exit 1; }
+
+echo 'Merging input ontologies that declare owl:imports (files with no imports are left as-is).'
 cd $VFB_DOWNLOAD_DIR
 for i in *.owl; do
     [ -f "$i" ] || break
-    echo "Merging: $i"
-    ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv -v "$i.tmp.owl" "$i" && echo "Finished: $i" &
+    if grep -qE 'owl:imports|owl#imports' "$i"; then
+        echo "Merging (has imports): $i"
+        run_robot merge --input "$i" -o "$i.tmp.owl" && mv -v "$i.tmp.owl" "$i" && echo "Finished: $i" &
+    else
+        echo "Skipping merge (no imports): $i"
+    fi
 done
 for i in *.owl.gz; do
     [ -f "$i" ] || break
     echo "Merging: $i"
-    ${WORKSPACE}/robot merge --input $i -o "$i.tmp.owl" && mv -v "$i.tmp.owl" "$i.owl" && echo "Finished: $i" &
+    run_robot merge --input "$i" -o "$i.tmp.owl" && mv -v "$i.tmp.owl" "$i.owl" && echo "Finished: $i" &
 done
 wait
+check_robot_errors "merge"
 
 echo 'Copy all OWL files to output directory..'
 cp $VFB_DOWNLOAD_DIR/*.owl $VFB_FINAL &
@@ -234,9 +289,10 @@ for i in *.owl; do
     seedfile=$i"_terms.txt"
     echo "Extracting seed from: $i to $seedfile"
     [ ! -f "$seedfile" ] || break
-    ${WORKSPACE}/robot query -f csv -i $i --query ${SPARQL_DIR}/terms.sparql $seedfile  && echo "Finished: $i" &
+    run_robot query -f csv -i "$i" --query ${SPARQL_DIR}/terms.sparql "$seedfile"  && echo "Finished: $i" &
 done
 wait
+check_robot_errors "seed extraction"
 
 cat *_terms.txt | sort | uniq > ${VFB_FINAL}/seed.txt
 
@@ -249,10 +305,11 @@ for i in *.owl; do
     [ -f "$i" ] || break
     echo "Processing: $i"
     mod=$i"_module.owl"
-    ${WORKSPACE}/robot extract -i $i -T ${VFB_FINAL}/seed.txt --method BOT -o $mod && cp $mod $VFB_FINAL && cp $mod $VFB_DEBUG_DIR && echo "Finished: $i" &
+    run_robot extract -i "$i" -T ${VFB_FINAL}/seed.txt --method BOT -o "$mod" && cp "$mod" $VFB_FINAL && cp "$mod" $VFB_DEBUG_DIR && echo "Finished: $i" &
 done
 
 wait
+check_robot_errors "module extraction"
 
 echo "VFBTIME:"
 date
@@ -286,9 +343,10 @@ if [ "$REMOVE_UNSAT_CAUSING_AXIOMS" = true ]; then
     # Remove axioms
     for axiom_type in $UNSAT_AXIOM_TYPES; do
       echo "Removing $axiom_type axioms from $owl_file"
-      ${WORKSPACE}/robot remove --input "$owl_file" --term "http://www.w3.org/2002/07/owl#Nothing" --axioms logical --preserve-structure false \
-        remove --axioms $axiom_type --preserve-structure false -o "$owl_file.tmp.owl"
-      mv "$owl_file.tmp.owl" "$owl_file"
+      if run_robot remove --input "$owl_file" --term "http://www.w3.org/2002/07/owl#Nothing" --axioms logical --preserve-structure false \
+        remove --axioms $axiom_type --preserve-structure false -o "$owl_file.tmp.owl"; then
+        mv "$owl_file.tmp.owl" "$owl_file"
+      fi
     done
     echo "Finished: $owl_file"
   }
@@ -304,6 +362,7 @@ if [ "$REMOVE_UNSAT_CAUSING_AXIOMS" = true ]; then
 
   # Wait for all background jobs to complete
   wait
+  check_robot_errors "axiom removal"
 fi
 
 # Function to handle conversion and validation
@@ -312,7 +371,7 @@ process_owl_file() {
     local ttl_file="${owl_file%.owl}.ttl"
 
     echo "Processing: $owl_file"
-    ${WORKSPACE}/robot convert --check false --input "$owl_file" -f ttl --output "$ttl_file"
+    run_robot convert --check false --input "$owl_file" -f ttl --output "$ttl_file"
 
     # Perform validation if conditions are met
     if [ "$owl_file" == "kb.owl" ] && [ "$VALIDATE" = true ] && [ "$VALIDATESHACL" = true ]; then
@@ -335,6 +394,7 @@ done
 
 # Wait for all background processes to complete
 wait
+check_robot_errors "convert"
 
 gzip -f *.ttl || :
 
