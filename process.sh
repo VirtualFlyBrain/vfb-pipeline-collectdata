@@ -311,6 +311,24 @@ done
 wait
 check_robot_errors "module extraction"
 
+# VFB uses 'is allele of' (GENO:0000408) more broadly than GENO's asserted domain
+# (GENO:0000481 'genomic feature') allows, so strip that ObjectPropertyDomain axiom from
+# the GENO module before it is loaded. Leaves the property declaration and all other axioms
+# intact; a no-op if the module doesn't contain the axiom.
+GENO_MODULE=geno.owl_module.owl
+if [ -f "$GENO_MODULE" ]; then
+    echo "Removing 'is allele of' (GENO:0000408) domain assertion from $GENO_MODULE"
+    run_robot remove --input "$GENO_MODULE" \
+        --term http://purl.obolibrary.org/obo/GENO_0000408 \
+        --axioms ObjectPropertyDomain \
+        --preserve-structure false \
+        -o "$GENO_MODULE.tmp.owl" \
+      && mv -v "$GENO_MODULE.tmp.owl" "$GENO_MODULE" \
+      && cp "$GENO_MODULE" $VFB_FINAL \
+      && cp "$GENO_MODULE" $VFB_DEBUG_DIR
+    check_robot_errors "geno domain removal"
+fi
+
 echo "VFBTIME:"
 date
 
