@@ -359,13 +359,23 @@ if [ "$REMOVE_UNSAT_CAUSING_AXIOMS" = true ]; then
     done < ${WORKSPACE}/vfb_skip_axiom_checks.txt
 
     # Remove axioms
-    for axiom_type in $UNSAT_AXIOM_TYPES; do
-      echo "Removing $axiom_type axioms from $owl_file"
+    if [ "${SINGLE_PASS_AXIOM_REMOVAL:-false}" = true ]; then
+      # One ROBOT load/save for all axiom types (same result as the loop below, which reloads and rewrites the
+      # whole file once per type — 5x the work on the large files that set this stage's length).
+      echo "Removing $UNSAT_AXIOM_TYPES axioms from $owl_file (single pass)"
       if run_robot remove --input "$owl_file" --term "http://www.w3.org/2002/07/owl#Nothing" --axioms logical --preserve-structure false \
-        remove --axioms $axiom_type --preserve-structure false -o "$owl_file.tmp.owl"; then
+        remove --axioms "$UNSAT_AXIOM_TYPES" --preserve-structure false -o "$owl_file.tmp.owl"; then
         mv "$owl_file.tmp.owl" "$owl_file"
       fi
-    done
+    else
+      for axiom_type in $UNSAT_AXIOM_TYPES; do
+        echo "Removing $axiom_type axioms from $owl_file"
+        if run_robot remove --input "$owl_file" --term "http://www.w3.org/2002/07/owl#Nothing" --axioms logical --preserve-structure false \
+          remove --axioms $axiom_type --preserve-structure false -o "$owl_file.tmp.owl"; then
+          mv "$owl_file.tmp.owl" "$owl_file"
+        fi
+      done
+    fi
     echo "Finished: $owl_file"
   }
 
