@@ -36,6 +36,12 @@ ENV GITBRANCH=master
 
 RUN pip3 install wheel requests psycopg2 pandas base36
 
+# python:3.6 is Debian bullseye, which has moved to archive.debian.org; the live mirrors now 404 on its packages.
+RUN sed -i -e 's|http://deb.debian.org/debian-security|http://archive.debian.org/debian-security|g' \
+           -e 's|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g' \
+           -e 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list && \
+    echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99archive
+
 RUN apt-get -qq update || apt-get -qq update && \
 apt-get -qq -y install git curl wget default-jdk pigz maven libpq-dev python-dev tree gawk
 
