@@ -5,7 +5,7 @@ http://virtualflybrain.org/data/VFB/OWL/VFB_drivers.owl
 http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_genes.owl
 http://virtualflybrain.org/data/VFB/OWL/VFB_NT.owl
 http://virtualflybrain.org/data/VFB/OWL/merged.owl
-http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_FBlc*
+http://virtualflybrain.org/data/VFB/OWL/VFB_scRNAseq_metadata_*
 http://virtualflybrain.org/data/VFB/OWL/VFB_EPseq_PR*
 http://virtualflybrain.org/data/VFB/OWL/synapse_totals_*
 http://purl.obolibrary.org/obo/fbbt/EM_synonyms.owl

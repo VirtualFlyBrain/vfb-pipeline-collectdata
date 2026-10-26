@@ -21,7 +21,7 @@ entrypoint.
      `NBO`, `FBbi`) that are **not** taken whole; only a relevant module is later extracted (step 5).
 
    URL entries may contain a `*` wildcard, in which case the matching files are discovered by
-   scraping the directory listing (used for `VFB_scRNAseq_FBlc*`, `VFB_EPseq_PR*`).
+   scraping the directory listing (used for `VFB_scRNAseq_metadata_*`, `VFB_EPseq_PR*`).
 
 2. **Remove embargoed / blocked data** from the live VFB knowledge base *before* export, by running
    Cypher statements against the Neo4j server (`KBserver`). This deletes non-production datasets and
