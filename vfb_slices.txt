@@ -5,3 +5,5 @@ http://purl.obolibrary.org/obo/ro.owl
 http://purl.obolibrary.org/obo/dpo.owl
 http://purl.obolibrary.org/obo/nbo.owl
 http://purl.obolibrary.org/obo/geno.owl
+http://purl.obolibrary.org/obo/fbcv.owl
+http://www.bioassayontology.org/bao/bao_complete.owl

@@ -17,8 +17,10 @@ entrypoint.
    - [`vfb_fullontologies.txt`](vfb_fullontologies.txt) — ontologies pulled in *whole* (fly anatomy
      `fbbt`, development `fbdv`, and VFB-specific ontologies such as drivers, neurotransmitters,
      scRNAseq genes, neuron functions, etc.).
-   - [`vfb_slices.txt`](vfb_slices.txt) — large external ontologies (`GO`, `SO`, `RO`, `DPO`,
-     `NBO`, `FBbi`) that are **not** taken whole; only a relevant module is later extracted (step 5).
+   - [`vfb_slices.txt`](vfb_slices.txt) — external ontologies (`GO`, `SO`, `RO`, `DPO`, `NBO`,
+     `FBbi`, `GENO`, `FBcv`, `BAO`) that are **not** taken whole; only a relevant module is later
+     extracted (step 5). FBcv and BAO supply the labels of the scRNAseq metadata's dataset, assay
+     and cluster types and of its assay/sample properties.
 
    URL entries may contain a `*` wildcard, in which case the matching files are discovered by
    scraping the directory listing (used for `VFB_scRNAseq_metadata_*`, `VFB_EPseq_PR*`).
