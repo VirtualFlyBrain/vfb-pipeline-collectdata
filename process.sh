@@ -153,6 +153,16 @@ curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword
 echo 'Clean Channels/Individuals with no Image:'
 curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (:DataSet)<-[:has_source]-(i:Individual)<-[:depicts]-(ic:Individual) WHERE NOT (ic)-[:in_register_with]->(:Template) DETACH DELETE ic DETACH DELETE i"}]}'
 
+echo 'Blocked records with no DataSet link (the statements above only reach records linked by has_source):'
+echo 'Blocked registrations, any link:'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (ic:Individual)-[r:in_register_with]->(tc:Template) WHERE exists(r.block) DELETE r"}]}'
+echo 'Blocked Channels, any link:'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (ic:Individual) WHERE exists(ic.block) AND NOT ic:Template DETACH DELETE ic"}]}'
+echo 'Blocked Anatomical Individuals, any link:'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (i:Individual) WHERE exists(i.block) AND NOT i:Template OPTIONAL MATCH (i)<-[:depicts]-(ic:Individual) DETACH DELETE ic DETACH DELETE i"}]}'
+echo 'Orphan Channels (registered, depicting nothing):'
+curl -i -X POST ${KBserver}/db/data/transaction/commit -u ${KBuser}:${KBpassword} -H 'Content-Type: application/json' -d '{"statements": [{"statement": "MATCH (ic:Individual)-[:in_register_with]->(:Template) WHERE NOT ic:Template AND NOT (ic)-[:depicts]->(:Individual) DETACH DELETE ic"}]}'
+
 # echo "VFBTIME:"
 # date
 
