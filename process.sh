@@ -93,9 +93,23 @@ date
 echo '** Downloading relevant ontologies.. **'
 echo '** in full: **'
 
+# Inputs the caller has already fetched (EXTRA_ONTOLOGY_DIR, e.g. the vfb-data-release step fetch-external-inputs):
+# copy them in first; a list entry whose file name (or wildcard) is already present is then not downloaded, so the
+# run does not depend on another job having published that file. Without EXTRA_ONTOLOGY_DIR nothing changes.
+if [ -n "${EXTRA_ONTOLOGY_DIR:-}" ] && [ -d "$EXTRA_ONTOLOGY_DIR" ]; then
+    for f in "$EXTRA_ONTOLOGY_DIR"/*.owl; do
+        [ -f "$f" ] || continue
+        cp -v "$f" "$VFB_DOWNLOAD_DIR"/
+    done
+fi
+
 # Process each URL pattern in parallel
 while read -r url_pattern; do
     echo "Processing: $url_pattern"
+    if compgen -G "$VFB_DOWNLOAD_DIR/${url_pattern##*/}" > /dev/null; then
+        echo "Provided locally (EXTRA_ONTOLOGY_DIR), not downloading: $url_pattern"
+        continue
+    fi
     if [[ "$url_pattern" == *"*"* ]]; then
         base_url="${url_pattern%/*}/"
         pattern="${url_pattern##*/}"
